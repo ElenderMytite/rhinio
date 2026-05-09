@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fs::read_to_string};
+mod ir;
 mod lexer;
 mod parser;
-mod vm;
 fn main() {
     let text = read_to_string("source.txt").unwrap();
     println!("text: {}", text);
