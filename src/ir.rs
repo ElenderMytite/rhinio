@@ -1,8 +1,10 @@
 use std::collections::HashMap;
-
-use crate::parser::{AstNode, Comparison, Computation, Expression, Logic, Operation, Value};
+mod expression;
+mod iteration;
+mod value;
+use crate::parser::{AstNode, Comparison, Computation, Logic, Operation};
 use crate::vm::StackValue;
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Command {
     //computation
     Add,
@@ -11,9 +13,10 @@ pub enum Command {
     Div,
     Mod,
     // stack operations
+    Dup,
     Put(StackValue),
     Cls,
-    // comparision
+    // comparison
     Gt,
     Geq,
     Ls,
@@ -30,162 +33,56 @@ pub enum Command {
     // variable operations
     Load(usize),
     Store(usize),
+    // control flow,
+    // Set the instruction pointer to specified value if on the top of the stack is true value,
+    Jmp(usize),
+    // vector operations,
+    // returns the length of the vector on the top of the stack
+    Len,
+    // creates new vector and pushes it to the stack
+    New,
+    // pushes the top of the stack to the vector below it on the stack
+    Push,
+    // pops the vector on the top of the stack and puts the result to the stack
+    Pop,
+    // pops the index from the stack, copies the vector below it on the stack, pushes the value at the index to the stack
+    Get,
 }
-pub fn ir(root: AstNode, variables: &mut HashMap<String, usize>) -> Vec<Command> {
+/* example unpacking ir for :
+ *
+ */
+pub fn ir(
+    root: AstNode,
+    variables: &mut HashMap<String, usize>,
+    /* index of the first command of this function */ index: usize,
+) -> Vec<Command> {
     let mut commands = Vec::new();
     match root {
-        AstNode::Expression(expression) => {
-            commands.append(&mut ir_expression(&expression, variables))
+        AstNode::Iteration(iteration) => {
+            commands.append(&mut iteration::ir_iteration(
+                &iteration,
+                variables,
+                index + commands.len(),
+                None,
+            ));
         }
-        AstNode::BlockVec(_) => todo!(),
+        AstNode::Expression(expression) => {
+            commands.append(&mut expression::ir_expression(
+                &expression,
+                variables,
+                index + commands.len(),
+            ));
+        }
         AstNode::BlockCode(nodes) => {
             for node in nodes {
-                commands.append(&mut ir(node, variables));
+                commands.append(&mut ir(node, variables, index + commands.len()));
                 commands.push(Command::Cls);
             }
         }
     }
     commands
 }
-fn ir_value(value: &Value, variables: &mut HashMap<String, usize>) -> Vec<Command> {
-    let mut commands = Vec::new();
-    match value {
-        Value::Name(s) => {
-            register_variable(variables, s.clone());
-            commands.push(Command::Load(variables[s]));
-        }
-        Value::Number(x) => commands.push(Command::Put(StackValue::Int(*x))),
-        Value::Expression(expr) => {
-            commands.append(&mut ir_expression(expr, variables));
-        }
-    }
-    commands
-}
-fn ir_expression(expression: &Expression, variables: &mut HashMap<String, usize>) -> Vec<Command> {
-    let mut commands = Vec::new();
-    match expression.operation {
-        Some(op) => {
-            let command = operation_to_command(op);
-            println!(
-                "right len: {}; left len: {}; command: {:?}",
-                expression.left.len(),
-                expression.right.len(),
-                command
-            );
-            match op {
-                Operation::Set => {
-                    assert_eq!(expression.left.len(), expression.right.len());
-                    for i in 0..expression.left.len() {
-                        assert!(matches!(expression.left[i], Value::Name(_)));
-                        commands.append(&mut ir_value(&expression.right[i], variables));
-                        commands.push(Command::Store(register_variable(
-                            variables,
-                            expression.left[i].get_name().unwrap(),
-                        )))
-                    }
-                }
-                Operation::Comparison(_) => {
-                    assert_eq!(expression.left.len(), expression.right.len());
-                    for i in 0..expression.left.len() {
-                        commands.append(&mut ir_value(&expression.left[i], variables));
-                        commands.append(&mut ir_value(&expression.right[i], variables));
-                        commands.push(command);
-                    }
-                }
-                Operation::Computation(computation) => match computation {
-                    Computation::Add => {
-                        for (idx, value) in expression
-                            .left
-                            .iter()
-                            .chain(expression.right.iter())
-                            .enumerate()
-                        {
-                            commands.append(&mut ir_value(value, variables));
-                            if idx != 0 {
-                                commands.push(command);
-                            }
-                        }
-                    }
-                    Computation::Sub => {
-                        for (idx, value) in expression.left.iter().enumerate() {
-                            commands.append(&mut ir_value(value, variables));
-                            if idx > 0 {
-                                commands.push(Command::Add);
-                            }
-                        }
-                        if expression.left.is_empty() {
-                            commands.push(Command::Put(StackValue::Int(0)));
-                        }
-                        for (idx, value) in expression.right.iter().enumerate() {
-                            commands.append(&mut ir_value(value, variables));
-                            if idx > 0 {
-                                commands.push(Command::Add);
-                            }
-                        }
-                        commands.push(command);
-                    }
-                    Computation::Mul => {
-                        for (idx, value) in expression.left.iter().enumerate() {
-                            commands.append(&mut ir_value(value, variables));
-                            if idx > 0 {
-                                commands.push(command);
-                            }
-                        }
-                        for (idx, value) in expression.right.iter().enumerate() {
-                            commands.append(&mut ir_value(value, variables));
-                            if idx + expression.left.len() > 0 {
-                                commands.push(command);
-                            }
-                        }
-                    }
-                    Computation::Div => {
-                        for (idx, value) in expression.left.iter().enumerate() {
-                            commands.append(&mut ir_value(value, variables));
-                            if idx > 0 {
-                                commands.push(Command::Mul);
-                            }
-                        }
 
-                        for (idx, value) in expression.right.iter().enumerate() {
-                            commands.append(&mut ir_value(value, variables));
-                            if idx > 0 {
-                                commands.push(Command::Mul);
-                            }
-                        }
-                        commands.push(command);
-                    }
-                    Computation::Mod => {
-                        if expression.left.len() + expression.right.len() == 2 {
-                            for i in expression.left.iter().chain(expression.right.iter()) {
-                                commands.append(&mut ir_value(i, variables));
-                            }
-                        }
-                        commands.push(command);
-                    }
-                },
-                Operation::Logic(_) => {
-                    for (idx, value) in expression
-                        .left
-                        .iter()
-                        .chain(expression.right.iter())
-                        .enumerate()
-                    {
-                        commands.append(&mut ir_value(value, variables));
-                        if idx != 0 {
-                            commands.push(command);
-                        }
-                    }
-                }
-            }
-        }
-        None => {
-            if expression.left.len() == 1 {
-                commands.append(&mut ir_value(&expression.left[0], variables));
-            }
-        }
-    }
-    commands
-}
 fn register_variable(env: &mut HashMap<String, usize>, variable: String) -> usize {
     if !env.contains_key(&variable) {
         env.insert(variable.clone(), env.len());
@@ -218,5 +115,7 @@ fn operation_to_command(op: Operation) -> Command {
             Logic::Nor => Command::Nor,
             Logic::Not => Command::Not,
         },
+
+        _ => panic!("operation must be converted manually: {:?}", op),
     }
 }

@@ -1,172 +1,63 @@
-text: #%(( 1024 + 45 37 2) * 2) 3, # test comment
-#5 >= 4,
-#6 !> 6,
-#7 !< 2,
-#8 7 6 - 4 3 2,
-#-32,
-#1 2 3 4 / 8,
-cat = 5,
-dog = 3,
-(+ dog cat 7 cat),
+["vector.txt"]
+executing file: vector.txt
+text: vec = [1 2 3 7 8 32 101,,];
+(+ [vec ..]);
 
-character: # writing mode: None, buffer: ""
-character: % writing mode: Comment, buffer: ""
-character: ( writing mode: Comment, buffer: ""
-character: ( writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 1 writing mode: Comment, buffer: ""
-character: 0 writing mode: Comment, buffer: ""
-character: 2 writing mode: Comment, buffer: ""
-character: 4 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: + writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 4 writing mode: Comment, buffer: ""
-character: 5 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 3 writing mode: Comment, buffer: ""
-character: 7 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 2 writing mode: Comment, buffer: ""
-character: ) writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: * writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 2 writing mode: Comment, buffer: ""
-character: ) writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 3 writing mode: Comment, buffer: ""
-character: , writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: # writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: t writing mode: Comment, buffer: ""
-character: e writing mode: Comment, buffer: ""
-character: s writing mode: Comment, buffer: ""
-character: t writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: c writing mode: Comment, buffer: ""
-character: o writing mode: Comment, buffer: ""
-character: m writing mode: Comment, buffer: ""
-character: m writing mode: Comment, buffer: ""
-character: e writing mode: Comment, buffer: ""
-character: n writing mode: Comment, buffer: ""
-character: t writing mode: Comment, buffer: ""
-character: 
- writing mode: Comment, buffer: ""
-character: # writing mode: None, buffer: ""
-character: 5 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: > writing mode: Comment, buffer: ""
-character: = writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 4 writing mode: Comment, buffer: ""
-character: , writing mode: Comment, buffer: ""
-character: 
- writing mode: Comment, buffer: ""
-character: # writing mode: None, buffer: ""
-character: 6 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: ! writing mode: Comment, buffer: ""
-character: > writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 6 writing mode: Comment, buffer: ""
-character: , writing mode: Comment, buffer: ""
-character: 
- writing mode: Comment, buffer: ""
-character: # writing mode: None, buffer: ""
-character: 7 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: ! writing mode: Comment, buffer: ""
-character: < writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 2 writing mode: Comment, buffer: ""
-character: , writing mode: Comment, buffer: ""
-character: 
- writing mode: Comment, buffer: ""
-character: # writing mode: None, buffer: ""
-character: 8 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 7 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 6 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: - writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 4 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 3 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 2 writing mode: Comment, buffer: ""
-character: , writing mode: Comment, buffer: ""
-character: 
- writing mode: Comment, buffer: ""
-character: # writing mode: None, buffer: ""
-character: - writing mode: Comment, buffer: ""
-character: 3 writing mode: Comment, buffer: ""
-character: 2 writing mode: Comment, buffer: ""
-character: , writing mode: Comment, buffer: ""
-character: 
- writing mode: Comment, buffer: ""
-character: # writing mode: None, buffer: ""
-character: 1 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 2 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 3 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 4 writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: / writing mode: Comment, buffer: ""
-character:   writing mode: Comment, buffer: ""
-character: 8 writing mode: Comment, buffer: ""
-character: , writing mode: Comment, buffer: ""
-character: 
- writing mode: Comment, buffer: ""
-character: c writing mode: None, buffer: ""
-character: a writing mode: Name, buffer: "c"
-character: t writing mode: Name, buffer: "ca"
-character:   writing mode: Name, buffer: "cat"
+character: v writing mode: None, buffer: ""
+character: e writing mode: Name, buffer: "v"
+character: c writing mode: Name, buffer: "ve"
+character:   writing mode: Name, buffer: "vec"
 character: = writing mode: None, buffer: ""
 character:   writing mode: None, buffer: ""
-character: 5 writing mode: None, buffer: ""
-character: , writing mode: Int, buffer: "5"
-buffer: "5"
-character: 
- writing mode: None, buffer: ""
-character: d writing mode: None, buffer: ""
-character: o writing mode: Name, buffer: "d"
-character: g writing mode: Name, buffer: "do"
-character:   writing mode: Name, buffer: "dog"
-character: = writing mode: None, buffer: ""
-character:   writing mode: None, buffer: ""
+character: [ writing mode: None, buffer: ""
+character: 1 writing mode: None, buffer: ""
+character:   writing mode: Int, buffer: "1"
+buffer: "1"
+character: 2 writing mode: None, buffer: ""
+character:   writing mode: Int, buffer: "2"
+buffer: "2"
 character: 3 writing mode: None, buffer: ""
-character: , writing mode: Int, buffer: "3"
+character:   writing mode: Int, buffer: "3"
 buffer: "3"
+character: 7 writing mode: None, buffer: ""
+character:   writing mode: Int, buffer: "7"
+buffer: "7"
+character: 8 writing mode: None, buffer: ""
+character:   writing mode: Int, buffer: "8"
+buffer: "8"
+character: 3 writing mode: None, buffer: ""
+character: 2 writing mode: Int, buffer: "3"
+buffer: "3"
+character:   writing mode: Int, buffer: "32"
+buffer: "32"
+character: 1 writing mode: None, buffer: ""
+character: 0 writing mode: Int, buffer: "1"
+buffer: "1"
+character: 1 writing mode: Int, buffer: "10"
+buffer: "10"
+character: , writing mode: Int, buffer: "101"
+buffer: "101"
+character: , writing mode: None, buffer: ""
+character: ] writing mode: None, buffer: ""
+character: ; writing mode: None, buffer: ""
 character: 
  writing mode: None, buffer: ""
 character: ( writing mode: None, buffer: ""
 character: + writing mode: None, buffer: ""
 character:   writing mode: None, buffer: ""
-character: d writing mode: None, buffer: ""
-character: o writing mode: Name, buffer: "d"
-character: g writing mode: Name, buffer: "do"
-character:   writing mode: Name, buffer: "dog"
-character: c writing mode: None, buffer: ""
-character: a writing mode: Name, buffer: "c"
-character: t writing mode: Name, buffer: "ca"
-character:   writing mode: Name, buffer: "cat"
-character: 7 writing mode: None, buffer: ""
-character:   writing mode: Int, buffer: "7"
-buffer: "7"
-character: c writing mode: None, buffer: ""
-character: a writing mode: Name, buffer: "c"
-character: t writing mode: Name, buffer: "ca"
-character: ) writing mode: Name, buffer: "cat"
-character: , writing mode: None, buffer: ""
+character: [ writing mode: None, buffer: ""
+character: v writing mode: None, buffer: ""
+character: e writing mode: Name, buffer: "v"
+character: c writing mode: Name, buffer: "ve"
+character:   writing mode: Name, buffer: "vec"
+character: . writing mode: None, buffer: ""
+character: . writing mode: None, buffer: ""
+character: ] writing mode: None, buffer: ""
+character: ) writing mode: None, buffer: ""
+character: ; writing mode: None, buffer: ""
 character: 
  writing mode: None, buffer: ""
-tokens: ["cat", "=", "5", ",", "dog", "=", "3", ",", "(", "+", "dog", "cat", "7", "cat", ")", ","]
+tokens: ["vec", "=", "[", "1", "2", "3", "7", "8", "32", "101", ",,", "]", ";", "(", "+", "[", "vec", "..", "]", ")", ";"]
 ast: BlockCode(
     [
         Expression(
@@ -176,29 +67,42 @@ ast: BlockCode(
                 ),
                 left: [
                     Name(
-                        "cat",
+                        "vec",
                     ),
                 ],
                 right: [
-                    Number(
-                        5,
-                    ),
-                ],
-            },
-        ),
-        Expression(
-            Expression {
-                operation: Some(
-                    Set,
-                ),
-                left: [
-                    Name(
-                        "dog",
-                    ),
-                ],
-                right: [
-                    Number(
-                        3,
+                    IterationExpr(
+                        IterationExpr {
+                            operation: Some(
+                                Vector(
+                                    Pack,
+                                ),
+                            ),
+                            left: [
+                                Number(
+                                    1,
+                                ),
+                                Number(
+                                    2,
+                                ),
+                                Number(
+                                    3,
+                                ),
+                                Number(
+                                    7,
+                                ),
+                                Number(
+                                    8,
+                                ),
+                                Number(
+                                    32,
+                                ),
+                                Number(
+                                    101,
+                                ),
+                            ],
+                            right: [],
+                        },
                     ),
                 ],
             },
@@ -216,17 +120,20 @@ ast: BlockCode(
                             ),
                             left: [],
                             right: [
-                                Name(
-                                    "dog",
-                                ),
-                                Name(
-                                    "cat",
-                                ),
-                                Number(
-                                    7,
-                                ),
-                                Name(
-                                    "cat",
+                                IterationExpr(
+                                    IterationExpr {
+                                        operation: Some(
+                                            Vector(
+                                                Unpack,
+                                            ),
+                                        ),
+                                        left: [
+                                            Name(
+                                                "vec",
+                                            ),
+                                        ],
+                                        right: [],
+                                    },
                                 ),
                             ],
                         },
@@ -238,7 +145,238 @@ ast: BlockCode(
     ],
 )
 right len: 1; left len: 1; command: Store(0)
-right len: 1; left len: 1; command: Store(0)
-right len: 0; left len: 4; command: Add
-ir: [Put(Int(5)), Store(0), Cls, Put(Int(3)), Store(1), Cls, Load(1), Load(0), Add, Put(Int(7)), Add, Load(0), Add, Cls]
-Int(20)
+right len: 0; left len: 1; command: Add
+ir: [New, Put(Int(1)), Push, Put(Int(2)), Push, Put(Int(3)), Push, Put(Int(7)), Push, Put(Int(8)), Push, Put(Int(32)), Push, Put(Int(101)), Push, Store(0), Cls, Put(Int(0)), Load(0), Store(2), Put(Int(0)), Store(1), Put(Int(0)), Load(2), Load(1), Get, Add, Load(1), Put(Int(1)), Add, Dup, Store(1), Load(2), Len, Ls, Jmp(23), Add, Cls]
+stack: []
+op: New
+stack: [Vector(RefCell { value: [] })]
+op: Put(Int(1))
+stack: [Vector(RefCell { value: [] }), Int(1)]
+op: Push
+stack: [Vector(RefCell { value: [Int(1)] })]
+op: Put(Int(2))
+stack: [Vector(RefCell { value: [Int(1)] }), Int(2)]
+op: Push
+stack: [Vector(RefCell { value: [Int(1), Int(2)] })]
+op: Put(Int(3))
+stack: [Vector(RefCell { value: [Int(1), Int(2)] }), Int(3)]
+op: Push
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3)] })]
+op: Put(Int(7))
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3)] }), Int(7)]
+op: Push
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7)] })]
+op: Put(Int(8))
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7)] }), Int(8)]
+op: Push
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8)] })]
+op: Put(Int(32))
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8)] }), Int(32)]
+op: Push
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32)] })]
+op: Put(Int(101))
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32)] }), Int(101)]
+op: Push
+stack: [Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Store(0)
+stack: []
+op: Cls
+stack: []
+op: Put(Int(0))
+stack: [Int(0)]
+op: Load(0)
+stack: [Int(0), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Store(2)
+stack: [Int(0)]
+op: Put(Int(0))
+stack: [Int(0), Int(0)]
+op: Store(1)
+stack: [Int(0)]
+op: Put(Int(0))
+stack: [Int(0), Int(0)]
+op: Load(2)
+stack: [Int(0), Int(0), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Load(1)
+stack: [Int(0), Int(0), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] }), Int(0)]
+op: Get
+stack: [Int(0), Int(0), Int(1)]
+op: Add
+stack: [Int(0), Int(1)]
+op: Load(1)
+stack: [Int(0), Int(1), Int(0)]
+op: Put(Int(1))
+stack: [Int(0), Int(1), Int(0), Int(1)]
+op: Add
+stack: [Int(0), Int(1), Int(1)]
+op: Dup
+stack: [Int(0), Int(1), Int(1), Int(1)]
+op: Store(1)
+stack: [Int(0), Int(1), Int(1)]
+op: Load(2)
+stack: [Int(0), Int(1), Int(1), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Len
+stack: [Int(0), Int(1), Int(1), Int(7)]
+op: Ls
+stack: [Int(0), Int(1), Bool(true)]
+op: Jmp(23)
+stack: [Int(0), Int(1)]
+op: Load(2)
+stack: [Int(0), Int(1), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Load(1)
+stack: [Int(0), Int(1), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] }), Int(1)]
+op: Get
+stack: [Int(0), Int(1), Int(2)]
+op: Add
+stack: [Int(0), Int(3)]
+op: Load(1)
+stack: [Int(0), Int(3), Int(1)]
+op: Put(Int(1))
+stack: [Int(0), Int(3), Int(1), Int(1)]
+op: Add
+stack: [Int(0), Int(3), Int(2)]
+op: Dup
+stack: [Int(0), Int(3), Int(2), Int(2)]
+op: Store(1)
+stack: [Int(0), Int(3), Int(2)]
+op: Load(2)
+stack: [Int(0), Int(3), Int(2), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Len
+stack: [Int(0), Int(3), Int(2), Int(7)]
+op: Ls
+stack: [Int(0), Int(3), Bool(true)]
+op: Jmp(23)
+stack: [Int(0), Int(3)]
+op: Load(2)
+stack: [Int(0), Int(3), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Load(1)
+stack: [Int(0), Int(3), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] }), Int(2)]
+op: Get
+stack: [Int(0), Int(3), Int(3)]
+op: Add
+stack: [Int(0), Int(6)]
+op: Load(1)
+stack: [Int(0), Int(6), Int(2)]
+op: Put(Int(1))
+stack: [Int(0), Int(6), Int(2), Int(1)]
+op: Add
+stack: [Int(0), Int(6), Int(3)]
+op: Dup
+stack: [Int(0), Int(6), Int(3), Int(3)]
+op: Store(1)
+stack: [Int(0), Int(6), Int(3)]
+op: Load(2)
+stack: [Int(0), Int(6), Int(3), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Len
+stack: [Int(0), Int(6), Int(3), Int(7)]
+op: Ls
+stack: [Int(0), Int(6), Bool(true)]
+op: Jmp(23)
+stack: [Int(0), Int(6)]
+op: Load(2)
+stack: [Int(0), Int(6), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Load(1)
+stack: [Int(0), Int(6), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] }), Int(3)]
+op: Get
+stack: [Int(0), Int(6), Int(7)]
+op: Add
+stack: [Int(0), Int(13)]
+op: Load(1)
+stack: [Int(0), Int(13), Int(3)]
+op: Put(Int(1))
+stack: [Int(0), Int(13), Int(3), Int(1)]
+op: Add
+stack: [Int(0), Int(13), Int(4)]
+op: Dup
+stack: [Int(0), Int(13), Int(4), Int(4)]
+op: Store(1)
+stack: [Int(0), Int(13), Int(4)]
+op: Load(2)
+stack: [Int(0), Int(13), Int(4), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Len
+stack: [Int(0), Int(13), Int(4), Int(7)]
+op: Ls
+stack: [Int(0), Int(13), Bool(true)]
+op: Jmp(23)
+stack: [Int(0), Int(13)]
+op: Load(2)
+stack: [Int(0), Int(13), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Load(1)
+stack: [Int(0), Int(13), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] }), Int(4)]
+op: Get
+stack: [Int(0), Int(13), Int(8)]
+op: Add
+stack: [Int(0), Int(21)]
+op: Load(1)
+stack: [Int(0), Int(21), Int(4)]
+op: Put(Int(1))
+stack: [Int(0), Int(21), Int(4), Int(1)]
+op: Add
+stack: [Int(0), Int(21), Int(5)]
+op: Dup
+stack: [Int(0), Int(21), Int(5), Int(5)]
+op: Store(1)
+stack: [Int(0), Int(21), Int(5)]
+op: Load(2)
+stack: [Int(0), Int(21), Int(5), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Len
+stack: [Int(0), Int(21), Int(5), Int(7)]
+op: Ls
+stack: [Int(0), Int(21), Bool(true)]
+op: Jmp(23)
+stack: [Int(0), Int(21)]
+op: Load(2)
+stack: [Int(0), Int(21), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Load(1)
+stack: [Int(0), Int(21), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] }), Int(5)]
+op: Get
+stack: [Int(0), Int(21), Int(32)]
+op: Add
+stack: [Int(0), Int(53)]
+op: Load(1)
+stack: [Int(0), Int(53), Int(5)]
+op: Put(Int(1))
+stack: [Int(0), Int(53), Int(5), Int(1)]
+op: Add
+stack: [Int(0), Int(53), Int(6)]
+op: Dup
+stack: [Int(0), Int(53), Int(6), Int(6)]
+op: Store(1)
+stack: [Int(0), Int(53), Int(6)]
+op: Load(2)
+stack: [Int(0), Int(53), Int(6), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Len
+stack: [Int(0), Int(53), Int(6), Int(7)]
+op: Ls
+stack: [Int(0), Int(53), Bool(true)]
+op: Jmp(23)
+stack: [Int(0), Int(53)]
+op: Load(2)
+stack: [Int(0), Int(53), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Load(1)
+stack: [Int(0), Int(53), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] }), Int(6)]
+op: Get
+stack: [Int(0), Int(53), Int(101)]
+op: Add
+stack: [Int(0), Int(154)]
+op: Load(1)
+stack: [Int(0), Int(154), Int(6)]
+op: Put(Int(1))
+stack: [Int(0), Int(154), Int(6), Int(1)]
+op: Add
+stack: [Int(0), Int(154), Int(7)]
+op: Dup
+stack: [Int(0), Int(154), Int(7), Int(7)]
+op: Store(1)
+stack: [Int(0), Int(154), Int(7)]
+op: Load(2)
+stack: [Int(0), Int(154), Int(7), Vector(RefCell { value: [Int(1), Int(2), Int(3), Int(7), Int(8), Int(32), Int(101)] })]
+op: Len
+stack: [Int(0), Int(154), Int(7), Int(7)]
+op: Ls
+stack: [Int(0), Int(154), Bool(false)]
+op: Jmp(23)
+stack: [Int(0), Int(154)]
+op: Add
+stack: [Int(154)]
+op: Cls
+Int(154)

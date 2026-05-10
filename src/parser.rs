@@ -1,13 +1,13 @@
 #[derive(PartialEq, Eq)]
 pub enum ParsingMode {
     Expression,
-    BlockCode,
-    BlockVec,
+    Code,
+    Vector,
 }
 #[derive(Debug, Clone)]
 pub enum AstNode {
     Expression(Expression),
-    BlockVec(Vec<AstNode>),
+    Iteration(IterationExpr),
     BlockCode(Vec<AstNode>),
 }
 #[derive(Debug, Clone)]
@@ -17,10 +17,17 @@ pub struct Expression {
     pub right: Vec<Value>,
 }
 #[derive(Debug, Clone)]
+pub struct IterationExpr {
+    pub operation: Option<Operation>,
+    pub left: Vec<Value>,
+    pub right: Vec<Value>,
+}
+#[derive(Debug, Clone)]
 pub enum Value {
     Name(String),
     Number(isize),
     Expression(Expression),
+    IterationExpr(IterationExpr),
 }
 impl Value {
     pub fn get_name(&self) -> Result<String, ()> {
@@ -35,7 +42,13 @@ pub enum Operation {
     Comparison(Comparison),
     Computation(Computation),
     Logic(Logic),
+    Vector(VectorOp),
     Set,
+}
+impl Operation {
+    fn is_vector(&self) -> bool {
+        matches!(self, Operation::Vector(_))
+    }
 }
 #[derive(Debug, Clone)]
 enum Part {
@@ -43,6 +56,11 @@ enum Part {
     Node(AstNode),
     Name(String),
     Number(isize),
+}
+#[derive(Debug, Clone, Copy)]
+pub enum VectorOp {
+    Pack,
+    Unpack,
 }
 #[derive(Debug, Clone, Copy)]
 pub enum Comparison {
@@ -87,11 +105,13 @@ pub fn astify(
             }
             "{" => {
                 *index += 1;
-                nodes.push(astify(tokens, ParsingMode::BlockCode, index).unwrap())
+                nodes.push(astify(tokens, ParsingMode::Code, index).unwrap())
             }
             "[" => {
                 *index += 1;
-                nodes.push(astify(tokens, ParsingMode::BlockVec, index).unwrap())
+                buffer.push(Part::Node(
+                    astify(tokens, ParsingMode::Vector, index).unwrap(),
+                ));
             }
             ")" => {
                 if block_type == ParsingMode::Expression {
@@ -101,13 +121,30 @@ pub fn astify(
                     return Ok(AstNode::Expression(node));
                 }
             }
-            "," => match block_type {
+            "}" => {
+                if block_type == ParsingMode::Code {
+                    return Ok(AstNode::BlockCode(nodes));
+                }
+            }
+            "]" => {
+                if block_type == ParsingMode::Vector {
+                    let iter = parse_iteration(&buffer);
+                    buffer.clear();
+                    return Ok(AstNode::Iteration(iter));
+                }
+            }
+            ";" => match block_type {
+                ParsingMode::Vector => {
+                    let expr = Part::Node(AstNode::Expression(parse_expression(&buffer)));
+                    buffer.clear();
+                    buffer.push(expr);
+                }
                 ParsingMode::Expression => {
                     let expr = Part::Node(AstNode::Expression(parse_expression(&buffer)));
                     buffer.clear();
                     buffer.push(expr);
                 }
-                ParsingMode::BlockCode | ParsingMode::BlockVec => {
+                ParsingMode::Code => {
                     if !buffer.is_empty() {
                         let node = parse_expression(&buffer);
                         buffer.clear();
@@ -116,74 +153,30 @@ pub fn astify(
                     }
                 }
             },
-            "}" => {
-                if block_type == ParsingMode::BlockCode {
-                    return Ok(AstNode::BlockCode(nodes));
-                }
-            }
-            "]" => {
-                if block_type == ParsingMode::BlockVec {
-                    return Ok(AstNode::BlockVec(nodes));
-                }
-            }
-            "=" => {
-                buffer.push(Part::Operation(Operation::Set));
-            }
-            "+" => {
-                buffer.push(Part::Operation(Operation::Computation(Computation::Add)));
-            }
-            "-" => {
-                buffer.push(Part::Operation(Operation::Computation(Computation::Sub)));
-            }
-            "*" => {
-                buffer.push(Part::Operation(Operation::Computation(Computation::Mul)));
-            }
-            "/" => {
-                buffer.push(Part::Operation(Operation::Computation(Computation::Div)));
-            }
-            "%" => {
-                buffer.push(Part::Operation(Operation::Computation(Computation::Mod)));
-            }
-            "|" => {
-                buffer.push(Part::Operation(Operation::Logic(Logic::Or)));
-            }
-            "&" => {
-                buffer.push(Part::Operation(Operation::Logic(Logic::And)));
-            }
-            "^" => {
-                buffer.push(Part::Operation(Operation::Logic(Logic::Xor)));
-            }
-            "!" => {
-                buffer.push(Part::Operation(Operation::Logic(Logic::Not)));
-            }
-            "==" | "!^" => {
-                buffer.push(Part::Operation(Operation::Comparison(Comparison::Equal)));
-            }
-            "!=" => {
-                buffer.push(Part::Operation(Operation::Comparison(Comparison::NotEqual)));
-            }
-            ">" => {
-                buffer.push(Part::Operation(Operation::Comparison(Comparison::Greater)));
-            }
-            "<" => {
-                buffer.push(Part::Operation(Operation::Comparison(Comparison::Less)));
-            }
-            ">=" | "=>" | "!<" | "<!" => {
-                buffer.push(Part::Operation(Operation::Comparison(
-                    Comparison::GreaterOrEqual,
-                )));
-            }
-            "<=" | "=<" | "!>" | ">!" => {
-                buffer.push(Part::Operation(Operation::Comparison(
-                    Comparison::LessOrEqual,
-                )));
-            }
-            "!&" => {
-                buffer.push(Part::Operation(Operation::Logic(Logic::Nand)));
-            }
-            "!|" => {
-                buffer.push(Part::Operation(Operation::Logic(Logic::Nor)));
-            }
+            "=" => buffer.push(Part::Operation(Operation::Set)),
+            "+" => buffer.push(Part::Operation(Operation::Computation(Computation::Add))),
+            "-" => buffer.push(Part::Operation(Operation::Computation(Computation::Sub))),
+            "*" => buffer.push(Part::Operation(Operation::Computation(Computation::Mul))),
+            "/" => buffer.push(Part::Operation(Operation::Computation(Computation::Div))),
+            "%" => buffer.push(Part::Operation(Operation::Computation(Computation::Mod))),
+            "|" => buffer.push(Part::Operation(Operation::Logic(Logic::Or))),
+            "&" => buffer.push(Part::Operation(Operation::Logic(Logic::And))),
+            "^" => buffer.push(Part::Operation(Operation::Logic(Logic::Xor))),
+            "!" => buffer.push(Part::Operation(Operation::Logic(Logic::Not))),
+            "==" | "!^" => buffer.push(Part::Operation(Operation::Comparison(Comparison::Equal))),
+            "!=" => buffer.push(Part::Operation(Operation::Comparison(Comparison::NotEqual))),
+            ">" => buffer.push(Part::Operation(Operation::Comparison(Comparison::Greater))),
+            "<" => buffer.push(Part::Operation(Operation::Comparison(Comparison::Less))),
+            ">=" | "=>" | "!<" | "<!" => buffer.push(Part::Operation(Operation::Comparison(
+                Comparison::GreaterOrEqual,
+            ))),
+            "<=" | "=<" | "!>" | ">!" => buffer.push(Part::Operation(Operation::Comparison(
+                Comparison::LessOrEqual,
+            ))),
+            "!&" => buffer.push(Part::Operation(Operation::Logic(Logic::Nand))),
+            "!|" => buffer.push(Part::Operation(Operation::Logic(Logic::Nor))),
+            ",," => buffer.push(Part::Operation(Operation::Vector(VectorOp::Pack))),
+            ".." => buffer.push(Part::Operation(Operation::Vector(VectorOp::Unpack))),
             x if x.chars().all(|c| c.is_numeric())
                 | (x.starts_with("-") && x[1..].chars().all(|c| c.is_numeric())) =>
             {
@@ -208,9 +201,9 @@ pub fn astify(
         }
     }
     match block_type {
+        ParsingMode::Vector => panic!("unexpected end of vector"),
         ParsingMode::Expression => panic!("unexpected end of expression"),
-        ParsingMode::BlockCode => Ok(AstNode::BlockCode(nodes)),
-        ParsingMode::BlockVec => Ok(AstNode::BlockVec(nodes)),
+        ParsingMode::Code => Ok(AstNode::BlockCode(nodes)),
     }
 }
 fn parse_expression(buffer: &Vec<Part>) -> Expression {
@@ -223,6 +216,7 @@ fn parse_expression(buffer: &Vec<Part>) -> Expression {
         match buffer[idx] {
             Part::Operation(op) => {
                 if operation.is_none() {
+                    assert!(!op.is_vector());
                     operation = Some(op);
                 } else {
                     panic!("Second operation inside one paren found while parsing ")
@@ -244,6 +238,37 @@ fn parse_expression(buffer: &Vec<Part>) -> Expression {
         right: parse_unaries(&right),
     }
 }
+fn parse_iteration(buffer: &Vec<Part>) -> IterationExpr {
+    let mut idx = 0;
+    let mut left: Vec<Part> = Vec::new();
+    let mut right: Vec<Part> = Vec::new();
+    let mut operation: Option<Operation> = None;
+    while idx < buffer.len() {
+        match buffer[idx] {
+            Part::Operation(op) => {
+                if operation.is_none() {
+                    assert!(op.is_vector());
+                    operation = Some(op);
+                } else {
+                    panic!("Second operation inside one paren found while parsing ")
+                }
+            }
+            Part::Name(_) | Part::Number(_) | Part::Node(_) => {
+                if operation.is_none() {
+                    left.push(buffer[idx].clone());
+                } else {
+                    right.push(buffer[idx].clone());
+                }
+            }
+        }
+        idx += 1;
+    }
+    IterationExpr {
+        operation,
+        left: parse_unaries(&left),
+        right: parse_unaries(&right),
+    }
+}
 fn parse_unaries(buffer: &Vec<Part>) -> Vec<Value> {
     buffer
         .iter()
@@ -252,6 +277,7 @@ fn parse_unaries(buffer: &Vec<Part>) -> Vec<Value> {
             Part::Number(x) => Value::Number(x),
             Part::Node(n) => match n {
                 AstNode::Expression(expr) => Value::Expression(expr),
+                AstNode::Iteration(iter_expr) => Value::IterationExpr(iter_expr),
                 _ => panic!("Block found while parsing unary expression"),
             },
             _ => panic!("can't parse unary expression"),
