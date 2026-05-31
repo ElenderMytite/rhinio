@@ -1,0 +1,24 @@
+# Test logical operations
+# AND operation
+(& $true $true);
+(& $true $false);
+
+# OR operation
+(| $true $false);
+(| $false $false);
+
+# XOR operation
+(^ $true $false);
+(^ $true $true);
+
+# NOT operation
+(! $false);
+(! $true);
+
+# NAND operation
+(!& $true $true);
+(!& $true $false);
+
+# NOR operation
+(!| $true $false);
+(!| $false $false);

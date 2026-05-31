@@ -20,6 +20,20 @@ pub(super) fn ir_expression(
             //     command
             // );
             match op {
+                Operation::Comparison(_) | Operation::Computation(_) | Operation::Logic(_)
+                    if expression.left.len() + expression.right.len() == 2 =>
+                {
+                    for value in expression.left.iter().chain(expression.right.iter()) {
+                        commands.append(&mut ir_value(
+                            value,
+                            variables,
+                            index + commands.len(),
+                            None,
+                        ));
+                    }
+                    commands.push(command.clone().unwrap());
+                    return commands;
+                }
                 Operation::Vector(_) => {
                     commands.append(&mut ir_iteration(expression, variables, index + 1, outer));
                 }
@@ -103,7 +117,6 @@ pub(super) fn ir_expression(
                     }
                 }
                 Operation::Comparison(_) => {
-                    // println!("{expression:#?}");
                     assert_eq!(expression.left.len(), expression.right.len());
                     for i in 0..expression.left.len() {
                         commands.append(&mut ir_value(
@@ -131,8 +144,8 @@ pub(super) fn ir_expression(
                                 index + commands.len(),
                                 Some(op.clone()),
                             ));
+                            commands.push(Command::Add);
                         }
-                        commands.push(command.unwrap());
                     }
                     Computation::Sub => {
                         commands.push(Command::Put(StackValue::Int(0)));
@@ -155,7 +168,7 @@ pub(super) fn ir_expression(
                             ));
                             commands.push(Command::Add);
                         }
-                        commands.push(command.unwrap());
+                        commands.push(Command::Sub);
                     }
                     Computation::Mul => {
                         commands.push(Command::Put(StackValue::Int(1)));
@@ -166,8 +179,8 @@ pub(super) fn ir_expression(
                                 index + commands.len(),
                                 Some(op.clone()),
                             ));
+                            commands.push(Command::Mul);
                         }
-                        commands.push(command.unwrap());
                     }
                     Computation::Div => {
                         commands.push(Command::Put(StackValue::Int(1)));
@@ -190,20 +203,13 @@ pub(super) fn ir_expression(
                             ));
                             commands.push(Command::Mul);
                         }
-                        commands.push(command.unwrap());
+                        commands.push(Command::Div);
                     }
                     Computation::Mod => {
-                        if expression.left.len() + expression.right.len() == 2 {
-                            for i in expression.left.iter().chain(expression.right.iter()) {
-                                commands.append(&mut ir_value(
-                                    i,
-                                    variables,
-                                    index + commands.len(),
-                                    None,
-                                ));
-                            }
-                        }
-                        commands.push(command.unwrap());
+                        panic!(
+                            "Mod operation is only supported for 2 arguments; {} provided.",
+                            expression.left.len() + expression.right.len()
+                        );
                     }
                 },
                 Operation::Logic(l) => {

@@ -37,7 +37,7 @@ impl Value {
         }
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Operation {
     Comparison(Comparison),
     Computation(Computation),
@@ -64,12 +64,12 @@ pub(super) enum Keyword {
     True,
     False,
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum VectorOp {
     Pack,
     Unpack,
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Comparison {
     Greater,
     Less,
@@ -78,7 +78,7 @@ pub(crate) enum Comparison {
     LessOrEqual,
     NotEqual,
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Computation {
     Add,
     Sub,

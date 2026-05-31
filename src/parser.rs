@@ -42,13 +42,12 @@ pub fn astify(
                 ParsingMode::Expression => {
                     let expr = Part::Expression(parse_expression(&buffer));
                     buffer.clear();
-                    buffer.push(expr);
+                    buffer.push(expr.clone());
                 }
                 ParsingMode::Code => {
                     if !buffer.is_empty() {
                         let node = parse_expression(&buffer);
                         buffer.clear();
-                        // println!("parsed expression: {:?}", node);
                         nodes.push(AstNode::Expression(node));
                     }
                 }
@@ -139,8 +138,8 @@ fn parse_expression(buffer: &Vec<Part>) -> Expression {
             Part::Operation(op) => {
                 if operation.is_none() {
                     operation = Some(op);
-                } else {
-                    panic!("Second operation inside one paren found while parsing ")
+                } else if operation != Some(op) {
+                    panic!("two kinds of operations found inside one expression")
                 }
             }
             Part::Name(_) | Part::Number(_) | Part::Expression(_) => {
@@ -177,11 +176,13 @@ fn parse_expression(buffer: &Vec<Part>) -> Expression {
         }
         idx += 1;
     }
-    Expression {
+    let expr = Expression {
         operation,
         left: parse_unaries(&left),
         right: parse_unaries(&right),
-    }
+    };
+    //dbg!(&expr);
+    expr
 }
 fn parse_unaries(buffer: &Vec<Part>) -> Vec<Value> {
     buffer

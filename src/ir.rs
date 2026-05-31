@@ -56,7 +56,7 @@ pub enum Command {
 pub fn ir(
     root: AstNode,
     variables: &mut HashMap<String, usize>,
-    /* index of the first command of this function */ index: usize,
+    /* index of the first command of this function for correct jumps*/ index: usize,
 ) -> Vec<Command> {
     let mut commands = Vec::new();
     match root {
@@ -75,6 +75,7 @@ pub fn ir(
             }
         }
     }
+    //dbg!(&commands);
     commands
 }
 
