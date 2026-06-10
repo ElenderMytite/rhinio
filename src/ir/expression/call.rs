@@ -82,7 +82,7 @@ pub(super) fn ir_call(
             None,
         ));
         match command {
-            Ok(Command::Push | Command::VPop | Command::Get | Command::Len | Command::Print) => {
+            Ok(Command::VPush | Command::VPop | Command::Get | Command::Len | Command::Print) => {
                 commands.push(command.clone().unwrap());
             }
             _ => panic!(

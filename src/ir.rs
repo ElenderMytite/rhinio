@@ -41,7 +41,7 @@ pub enum Command {
     Len,
     VNew,
     // HNew,
-    Push,
+    VPush,
     VPop,
     Get,
     // type conversions
@@ -111,7 +111,7 @@ fn operation_to_command(op: Operation) -> Result<Command, String> {
             Logic::Not => Command::Not,
         }),
         Operation::Call(func) => match func.as_str() {
-            "push" => Ok(Command::Push),
+            "push" => Ok(Command::VPush),
             "pop" => Ok(Command::VPop),
             "get" => Ok(Command::Get),
             "len" => Ok(Command::Len),

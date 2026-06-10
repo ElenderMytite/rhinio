@@ -148,7 +148,7 @@ pub(super) fn ir_iteration(
                             ));
                         }
                     }
-                    commands.push(Command::Push);
+                    commands.push(Command::VPush);
                 }
             }
         },

@@ -1,5 +1,4 @@
 # Test vector/list operations
-# Create vector with elements
 v = (1 2 3,,);
 v;
 
@@ -8,20 +7,19 @@ v :len;
 
 # Push element to vector
 v :push 4 5 6;
-v;
+:print v;
 
 # Get element at index
-v :get 0;
-v :get 2;
+:print(v :get 0);
+:print(v :get 2);
 
 # Pop element
-v :pop;
+:print(v :pop);
 v;
 
-# Multiple vectors
 v1 = (10 20 30,,);
 v2 = (40 50,,);
-v1;
-v2;
+:print v1;
+:print v2;
 # sum all elements in vectors
 + (v1 v2 ..);

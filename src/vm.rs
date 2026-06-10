@@ -30,93 +30,24 @@ impl VM {
                 Command::Mod => self.modd(),
                 Command::Byte => self.byte(),
                 Command::Char => self.char(),
-                Command::Put(stack_value) => {
-                    self.stack.push(stack_value);
-                }
-                Command::Dup => {
-                    assert!(!self.stack.is_empty());
-                    self.stack.push(self.stack.last().unwrap().clone());
-                }
-                Command::Del => {
-                    assert!(!self.stack.is_empty());
-                    self.stack.pop();
-                }
-                Command::Swap => {
-                    assert!(self.stack.len() >= 2);
-                    let b = self.stack.pop().unwrap();
-                    let a = self.stack.pop().unwrap();
-                    self.stack.push(b);
-                    self.stack.push(a);
-                }
-                Command::Cls => {
-                    if self.flush {
-                        println!();
-                        self.flush = false;
-                    }
-                    self.stack.clear();
-                }
-                Command::Print => {
-                    assert!(self.stack.len() >= 1);
-                    self.flush = true;
-                    let value = self.stack.pop().unwrap();
-                    if value == StackValue::Char('\n') {
-                        println!();
-                        self.flush = false;
-                    } else {
-                        print!("{} ", print_value(&value));
-                    }
-                }
+                Command::Cls => self.cls(),
+                Command::Dup => self.dup(),
+                Command::Swap => self.swap(),
+                Command::Del => self.drop(),
+                Command::Put(value) => self.put(value),
+                Command::Print => self.print(),
                 Command::Eq => self.eq(),
                 Command::Neq => self.neq(),
                 Command::Geq => self.geq(),
                 Command::Leq => self.leq(),
                 Command::Gt => self.gt(),
                 Command::Ls => self.ls(),
-                Command::Not => {
-                    assert!(self.stack.len() >= 1);
-                    let a = self.stack.pop().unwrap().bool().unwrap();
-                    self.stack.push(StackValue::Bool(!a));
-                }
-                Command::And => {
-                    assert!(self.stack.len() >= 2);
-                    let (b, a) = (
-                        self.stack.pop().unwrap().bool().unwrap(),
-                        self.stack.pop().unwrap().bool().unwrap(),
-                    );
-                    self.stack.push(StackValue::Bool(a && b));
-                }
-                Command::Or => {
-                    assert!(self.stack.len() >= 2);
-                    let (b, a) = (
-                        self.stack.pop().unwrap().bool().unwrap(),
-                        self.stack.pop().unwrap().bool().unwrap(),
-                    );
-                    self.stack.push(StackValue::Bool(a || b));
-                }
-                Command::Xor => {
-                    assert!(self.stack.len() >= 2);
-                    let (b, a) = (
-                        self.stack.pop().unwrap().bool().unwrap(),
-                        self.stack.pop().unwrap().bool().unwrap(),
-                    );
-                    self.stack.push(StackValue::Bool(a != b));
-                }
-                Command::Nor => {
-                    assert!(self.stack.len() >= 2);
-                    let (b, a) = (
-                        self.stack.pop().unwrap().bool().unwrap(),
-                        self.stack.pop().unwrap().bool().unwrap(),
-                    );
-                    self.stack.push(StackValue::Bool(!(a || b)));
-                }
-                Command::Nand => {
-                    assert!(self.stack.len() >= 2);
-                    let (b, a) = (
-                        self.stack.pop().unwrap().bool().unwrap(),
-                        self.stack.pop().unwrap().bool().unwrap(),
-                    );
-                    self.stack.push(StackValue::Bool(!(a && b)));
-                }
+                Command::Not => self.not(),
+                Command::And => self.and(),
+                Command::Or => self.or(),
+                Command::Xor => self.xor(),
+                Command::Nor => self.nor(),
+                Command::Nand => self.nand(),
                 Command::Load(adress) => {
                     if adress >= self.env.len() {
                         self.stack.push(StackValue::Nil);
@@ -137,66 +68,16 @@ impl VM {
                         continue;
                     }
                 }
-                Command::Len => {
-                    assert!(self.stack.len() >= 1);
-                    let vector = &self.heap[self.stack.pop().unwrap().ptr().unwrap()];
-                    match vector {
-                        HeapValue::Vector(vec) => {
-                            self.stack.push(StackValue::Int(vec.len() as isize));
-                        } // HeapValue::HMap(map) => {
-                          //     self.stack.push(StackValue::Int(map.len() as isize));
-                          // }
-                    }
-                }
-                Command::VNew => {
-                    let ptr = self.heap.len();
-                    self.heap.push(HeapValue::Vector(vec![]));
-                    self.stack.push(StackValue::Ptr(ptr));
-                }
+                Command::Len => self.len(),
+                Command::VNew => self.new_vec(),
                 // Command::HNew => {
                 //     let ptr = self.heap.len();
                 //     self.heap.push(HeapValue::HMap(HashMap::new()));
                 //     self.stack.push(StackValue::Ptr(ptr));
                 // }
-                Command::Push => {
-                    assert!(self.stack.len() >= 2);
-                    let element = self.stack.pop().unwrap();
-                    let vector = &mut self.heap[self.stack.last().unwrap().ptr().unwrap()];
-                    match vector {
-                        HeapValue::Vector(vec) => {
-                            vec.push(element);
-                        }
-                    }
-                }
-                Command::VPop => {
-                    assert!(self.stack.len() >= 1);
-                    let vector = &mut self.heap[self.stack.pop().unwrap().ptr().unwrap()];
-                    match vector {
-                        HeapValue::Vector(vec) => {
-                            let element = vec.pop().unwrap();
-                            self.stack.push(element);
-                        }
-                    }
-                }
-                Command::Get => {
-                    assert!(self.stack.len() >= 2);
-                    let index = self.stack.pop().unwrap();
-                    let vector = &self.heap[self.stack.pop().unwrap().ptr().unwrap()];
-                    match vector {
-                        HeapValue::Vector(vec) => {
-                            let index = index.int().unwrap();
-                            // handle negative indices by wrapping around from the end of the vector
-                            let idx = ((index % (vec.len() as isize) + vec.len() as isize)
-                                % vec.len() as isize)
-                                as usize;
-                            let element = vec[idx];
-                            self.stack.push(element);
-                        } // HeapValue::HMap(map) => {
-                          //     let element = map.get(&index).unwrap_or(&StackValue::Nil);
-                          //     self.stack.push(element.clone());
-                          // }
-                    }
-                }
+                Command::VPop => self.vec_pop(),
+                Command::VPush => self.vec_push(),
+                Command::Get => self.vec_get(),
             }
             self.ip += 1;
         }
@@ -216,6 +97,15 @@ pub enum HeapValue {
     Vector(Vec<StackValue>),
     // HMap(HashMap<StackValue, StackValue>),
     // Str(String),
+}
+impl HeapValue {
+    pub fn len(&self) -> usize {
+        match self {
+            HeapValue::Vector(vec) => vec.len(),
+            // HeapValue::HMap(map) => map.len(),
+            // HeapValue::Str(s) => s.len(),
+        }
+    }
 }
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum StackValue {
@@ -251,12 +141,27 @@ impl StackValue {
         }
     }
 }
-pub(super) fn print_value(value: &StackValue) -> String {
+pub(super) fn print_value(value: &StackValue, vm: &VM) -> String {
     match value {
         StackValue::Nil => "Nil".to_string(),
         StackValue::Int(x) => x.to_string(),
         StackValue::Bool(b) => b.to_string(),
         StackValue::Char(c) => c.to_string(),
-        StackValue::Ptr(p) => format!("Ptr({p})"),
+        StackValue::Ptr(p) => {
+            let heap_val = &vm.heap[*p];
+            match heap_val {
+                HeapValue::Vector(vec) => {
+                    let elements: Vec<String> = vec.iter().map(|v| print_value(v, vm)).collect();
+                    format!("[{}]", elements.join(", "))
+                } // HeapValue::HMap(map) => {
+                  //     let elements: Vec<String> = map
+                  //         .iter()
+                  //         .map(|(k, v)| format!("{}: {}", print_value(k, vm), print_value(v, vm)))
+                  //         .collect();
+                  //     format!("{{{}}}", elements.join(", "))
+                  // }
+                  // HeapValue::Str(s) => s.clone(),
+            }
+        }
     }
 }

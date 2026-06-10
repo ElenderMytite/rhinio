@@ -53,7 +53,7 @@ pub fn run_repl() {
                         continue;
                     }
                     "vars" | "v" => {
-                        print_variables(&variables, &env);
+                        print_variables(&variables, &vm);
                         continue;
                     }
                     "" => continue,
@@ -83,7 +83,7 @@ pub fn run_repl() {
         }
     }
 }
-fn print_variables(variables: &HashMap<String, usize>, env: &Vec<StackValue>) {
+fn print_variables(variables: &HashMap<String, usize>, vm: &VM) {
     if variables.is_empty() {
         println!("No variables defined.");
     } else {
@@ -91,7 +91,7 @@ fn print_variables(variables: &HashMap<String, usize>, env: &Vec<StackValue>) {
         let mut vars: Vec<_> = variables.iter().collect();
         vars.sort_by_key(|&(_, &idx)| idx);
         for (name, idx) in vars {
-            println!("{}: {})", name, print_value(&env[*idx]));
+            println!("{}: {})", name, print_value(&vm.env[*idx], vm));
         }
     }
     println!();
