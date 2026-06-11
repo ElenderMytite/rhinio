@@ -1,13 +1,18 @@
-use std::collections::HashMap;
-
 use crate::ir::Command;
+use std::{
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
 mod instructions;
 pub(crate) struct VM {
     pub ip: usize,
-    pub flush: bool,
+    flush: bool,
     pub code: Vec<Command>,
+    /// storage for temporary calculations
     pub stack: Vec<StackValue>,
+    /// storage for large data (vector, hash map or a string)
     pub heap: Vec<HeapValue>,
+    /// storage for variables
     pub env: Vec<StackValue>,
 }
 impl VM {
@@ -21,142 +26,78 @@ impl VM {
             env: Vec::new(),
         }
     }
-    pub fn execute(&mut self) -> Result<(), TypeError> {
+    /// prints debugging information before executing each command
+    pub fn execute_program(&mut self, debug: bool) -> Result<(), TypeError> {
         while self.ip < self.code.len() {
-            // eprintln!(
-            //     "{}: {:?}; {:?}",
-            //     self.ip,
-            //     self.stack.clone(),
-            //     self.code[self.ip].clone()
-            // );
-            let result = match self.code[self.ip].clone() {
-                Command::Add => {
-                    self.add();
-                    Ok(())
-                }
-                Command::Sub => {
-                    self.sub();
-                    Ok(())
-                }
-                Command::Mul => {
-                    self.mul();
-                    Ok(())
-                }
-                Command::Div => {
-                    self.div();
-                    Ok(())
-                }
-                Command::Mod => {
-                    self.modd();
-                    Ok(())
-                }
-                Command::Byte => {
-                    self.byte();
-                    Ok(())
-                }
-                Command::Char => {
-                    self.char();
-                    Ok(())
-                }
-                Command::Cls => {
-                    self.cls();
-                    Ok(())
-                }
-                Command::Dup => {
-                    self.dup();
-                    Ok(())
-                }
-                Command::Swap => {
-                    self.swap();
-                    Ok(())
-                }
-                Command::Del => {
-                    self.drop();
-                    Ok(())
-                }
-                Command::Put(value) => {
-                    self.put(value);
-                    Ok(())
-                }
-                Command::Print => {
-                    self.print();
-                    Ok(())
-                }
-                Command::Eq => {
-                    self.eq();
-                    Ok(())
-                }
-                Command::Neq => {
-                    self.neq();
-                    Ok(())
-                }
-                Command::Geq => {
-                    self.geq();
-                    Ok(())
-                }
-                Command::Leq => {
-                    self.leq();
-                    Ok(())
-                }
-                Command::Gt => {
-                    self.gt();
-                    Ok(())
-                }
-                Command::Ls => {
-                    self.ls();
-                    Ok(())
-                }
-                Command::Not => {
-                    self.not();
-                    Ok(())
-                }
-                Command::And => {
-                    self.and();
-                    Ok(())
-                }
-                Command::Or => {
-                    self.or();
-                    Ok(())
-                }
-                Command::Xor => {
-                    self.xor();
-                    Ok(())
-                }
-                Command::Nor => {
-                    self.nor();
-                    Ok(())
-                }
-                Command::Nand => {
-                    self.nand();
-                    Ok(())
-                }
-                Command::Load(addr) => {
-                    self.load(addr);
-                    Ok(())
-                }
-                Command::Store(addr) => {
-                    self.store(addr);
-                    Ok(())
-                }
-                Command::Jmp(addr) => {
-                    self.jmp(addr);
-                    Ok(())
-                }
-                Command::Get => self.get(),
-                Command::HContains => self.hmap_contains(),
-                Command::Len => self.len(),
-                Command::VNew => {
-                    self.new_vec();
-                    Ok(())
-                }
-                Command::HNew => self.new_hmap(),
-                Command::VPop => self.vec_pop(),
-                Command::HRemove => self.hmap_remove(),
-                Command::VPush => self.vec_push(),
-                Command::HInsert => self.hmap_insert(),
-            };
-            result?;
-            self.ip += 1;
+            if debug {
+                eprintln!(
+                    "{}: {:?}; {:?}",
+                    self.ip,
+                    self.stack.clone(),
+                    self.code[self.ip].clone()
+                )
+            }
+            self.execute_command()?;
+        }
+        self.collect_garbage();
+        Ok(())
+        // garbage collection
+    }
+    fn collect_garbage(&mut self) {
+        let mut used = HashSet::new();
+        for var in self.env.iter() {
+            if let StackValue::Ptr(idx) = var {
+                used.insert(idx);
+            }
+        }
+        let mut idx = -1;
+        self.heap.retain(|_| {
+            idx += 1;
+            used.contains(&(idx as usize))
+        });
+    }
+    /// reads command at instruction pointer ip, and calls corresponding function, then increases instruction pointer by one
+    fn execute_command(&mut self) -> Result<(), TypeError> {
+        let command = self.code[self.ip];
+        self.ip += 1;
+        match command {
+            Command::Add => self.add(),
+            Command::Sub => self.sub(),
+            Command::Mul => self.mul(),
+            Command::Div => self.div(),
+            Command::Mod => self.modd(),
+            Command::Byte => self.byte(),
+            Command::Char => self.char(),
+            Command::Cls => self.cls(),
+            Command::Dup => self.dup(),
+            Command::Swap => self.swap(),
+            Command::Del => self.drop(),
+            Command::Put(value) => self.put(value),
+            Command::Print => self.print(),
+            Command::Eq => self.eq(),
+            Command::Neq => self.neq(),
+            Command::Geq => self.geq(),
+            Command::Leq => self.leq(),
+            Command::Gt => self.gt(),
+            Command::Ls => self.ls(),
+            Command::Not => self.not(),
+            Command::And => self.and(),
+            Command::Or => self.or(),
+            Command::Xor => self.xor(),
+            Command::Nor => self.nor(),
+            Command::Nand => self.nand(),
+            Command::Load(addr) => self.load(addr),
+            Command::Store(addr) => self.store(addr),
+            Command::Jmp(addr) => self.jump(addr),
+            Command::VNew => self.new_vec(),
+            Command::HNew => self.new_hmap(),
+            Command::Get => return self.get(1),
+            Command::HContains => return self.hmap_contains(),
+            Command::Len => return self.len(),
+            Command::VPop => return self.vec_pop(),
+            Command::HRemove => return self.hmap_remove(),
+            Command::VPush => return self.vec_push(),
+            Command::HInsert => return self.hmap_insert(),
         }
         Ok(())
     }

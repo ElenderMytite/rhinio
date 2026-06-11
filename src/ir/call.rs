@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    ir::{Command, register_variable, value::ir_value},
+    ir::{Command, iteration::ir_iteration, register_variable, value::ir_value},
     parser::types::{Expression, Operation},
 };
 pub(super) fn ir_call(
@@ -10,6 +10,7 @@ pub(super) fn ir_call(
     commands: &mut Vec<Command>,
     command: Result<Command, String>,
     index: usize,
+    outer: Option<Operation>,
 ) {
     let func = match &expression.operation {
         Some(Operation::Call(func)) => func.clone(),
@@ -59,6 +60,11 @@ pub(super) fn ir_call(
             commands.push(command.clone().unwrap());
             return;
         }
+        "hmap" => {
+            commands.push(command.clone().unwrap());
+            return;
+        }
+        "vec" => commands.append(&mut ir_iteration(expression, variables, index, outer)),
         "print" => (),
         _ => {
             panic!("Unsupported function call found!");
@@ -82,6 +88,7 @@ pub(super) fn ir_call(
             None,
         ));
         match command {
+            Ok(Command::HInsert) => (),
             Ok(_) => {
                 commands.push(command.clone().unwrap());
             }
@@ -98,6 +105,7 @@ pub(super) fn ir_call(
     }
     match command {
         Ok(Command::Get) => commands.push(Command::Del),
+        Ok(Command::HInsert) => commands.push(command.clone().unwrap()),
         _ => (),
     }
 }

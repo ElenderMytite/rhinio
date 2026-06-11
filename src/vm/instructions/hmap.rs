@@ -12,24 +12,27 @@ impl VM {
             _ => Err(TypeError),
         }
     }
-    pub fn new_hmap(&mut self) -> Result<(), TypeError> {
-        let vec = HashMap::new();
+    pub fn new_hmap(&mut self) {
+        let hmap = HashMap::new();
         let ptr = self.heap.len();
-        self.heap.push(HeapValue::HMap(vec));
+        self.heap.push(HeapValue::HMap(hmap));
         self.stack.push(StackValue::Ptr(ptr));
-        Ok(())
     }
     pub fn hmap_insert(&mut self) -> Result<(), TypeError> {
         let value = self.stack.pop().unwrap();
         let key = self.stack.pop().unwrap();
         let ptr = self.stack.pop().unwrap().ptr()?;
         let hmap = self.extract_hmap_from_heap_mut(ptr)?;
+        eprintln!("Successfully extracted hmap: {:?}", hmap.clone());
+        dbg!(key, value, ptr, hmap.clone());
         hmap.insert(key, value);
         Ok(())
     }
     pub fn hmap_get(&mut self) -> Result<(), TypeError> {
         let key = self.stack.pop().unwrap();
+        eprintln!("Successfully got key from the stack: {:?}", key);
         let ptr = self.stack.pop().unwrap().ptr()?;
+        eprintln!("Successfully got pointer from the stack: {:?}", ptr);
         let value = {
             let hmap = self.extract_hmap_from_heap_mut(ptr)?;
             *hmap.get(&key).unwrap_or(&StackValue::Nil)

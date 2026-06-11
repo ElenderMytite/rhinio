@@ -1,7 +1,6 @@
 use super::iteration::ir_iteration;
 use super::value::ir_value;
 use super::*;
-mod call;
 use crate::parser::types::{Computation, Expression, Operation, Value};
 use std::collections::HashMap;
 pub(super) fn ir_expression(
@@ -40,9 +39,17 @@ pub(super) fn ir_expression(
                 }
                 Operation::Call(_) => {
                     let new_idx = index + commands.len();
-                    call::ir_call(expression, variables, &mut commands, command, new_idx);
+                    call::ir_call(
+                        expression,
+                        variables,
+                        &mut commands,
+                        command,
+                        new_idx,
+                        outer,
+                    );
                 }
                 Operation::Set => {
+                    dbg!(variables.len());
                     assert_eq!(expression.left.len(), expression.right.len());
                     for i in 0..expression.left.len() {
                         assert!(matches!(expression.left[i], Value::Name(_)));
@@ -57,6 +64,7 @@ pub(super) fn ir_expression(
                             expression.left[i].get_name().unwrap(),
                         )))
                     }
+                    dbg!(variables.len());
                 }
                 Operation::Comparison(_) => {
                     assert_eq!(expression.left.len(), expression.right.len());
@@ -175,15 +183,13 @@ pub(super) fn ir_expression(
             }
         }
         None => {
-            if expression.left.len() == 1 {
+            for i in 0..expression.left.len() {
                 commands.append(&mut ir_value(
-                    &expression.left[0],
+                    &expression.left[i],
                     variables,
                     index + commands.len(),
                     None,
                 ));
-            } else {
-                panic!("Expression with no operation and more than one value found!");
             }
         }
     }

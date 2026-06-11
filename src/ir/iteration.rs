@@ -3,6 +3,7 @@ use super::value::ir_value;
 use super::*;
 use crate::parser::types::{Expression, Operation, Value, VectorOp};
 use std::collections::HashMap;
+
 pub(super) fn ir_iteration(
     iteration: &Expression,
     variables: &mut HashMap<String, usize>,
@@ -10,7 +11,7 @@ pub(super) fn ir_iteration(
     outer: Option<Operation>,
 ) -> Vec<Command> {
     let mut commands = Vec::new();
-    match iteration.operation {
+    match iteration.operation.clone() {
         Some(Operation::Vector(op)) => match op {
             VectorOp::Unpack => {
                 // assume vector is on top of the stack
@@ -120,32 +121,39 @@ pub(super) fn ir_iteration(
                 free_variable(variables, format!("--idx-{k_idx}"));
             }
             VectorOp::Pack => {
-                commands.push(Command::VNew);
-                for node in iteration.left.iter().chain(iteration.right.iter()) {
-                    match node {
-                        Value::Expression(expr) => {
-                            commands.append(&mut ir_expression(
-                                expr,
-                                variables,
-                                index + commands.len(),
-                                None,
-                            ));
-                        }
-                        _ => {
-                            commands.append(&mut ir_value(
-                                node,
-                                variables,
-                                index + commands.len(),
-                                None,
-                            ));
-                        }
-                    }
-                    commands.push(Command::VPush);
-                }
+                parse_pack(iteration, variables, index, &mut commands);
             }
+        },
+        Some(Operation::Call(call)) => match call.as_str() {
+            "vec" => parse_pack(iteration, variables, index, &mut commands),
+            _ => todo!(),
         },
         Some(_) => panic!("Non-vector operation found inside iteration!"),
         None => todo!(),
     }
     commands
+}
+fn parse_pack(
+    iteration: &Expression,
+    variables: &mut HashMap<String, usize>,
+    index: usize,
+    commands: &mut Vec<Command>,
+) {
+    commands.push(Command::VNew);
+    for node in iteration.left.iter().chain(iteration.right.iter()) {
+        match node {
+            Value::Expression(expr) => {
+                commands.append(&mut ir_expression(
+                    expr,
+                    variables,
+                    index + commands.len(),
+                    None,
+                ));
+            }
+            _ => {
+                commands.append(&mut ir_value(node, variables, index + commands.len(), None));
+            }
+        }
+        commands.push(Command::VPush);
+    }
 }

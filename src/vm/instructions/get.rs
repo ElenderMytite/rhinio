@@ -8,8 +8,12 @@ impl VM {
     fn extract_heap_value(&mut self, index: usize) -> Result<&HeapValue, TypeError> {
         Ok(&mut self.heap[index])
     }
-    pub fn get(&mut self) -> Result<(), TypeError> {
-        let ptr = self.stack.last().unwrap().ptr()?;
+    pub fn get(&mut self, index_size: usize) -> Result<(), TypeError> {
+        let ptr = self
+            .stack
+            .get(self.stack.len() - 1 - index_size)
+            .unwrap()
+            .ptr()?; // collection is under the index
         let collection = self.extract_heap_value(ptr)?;
         match collection {
             HeapValue::HMap(_) => self.hmap_get()?,

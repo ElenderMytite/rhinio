@@ -1,10 +1,11 @@
 use std::collections::HashMap;
+mod call;
 mod expression;
 mod iteration;
 mod value;
 use crate::parser::types::{AstNode, Comparison, Computation, Logic, Operation};
 use crate::vm::StackValue;
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Command {
     //computation
     Add,

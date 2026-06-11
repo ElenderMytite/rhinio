@@ -3,7 +3,7 @@ use std::{
     io::{self, Write},
 };
 
-use crate::vm::{StackValue, VM, print_value};
+use crate::vm::{VM, print_value};
 
 /// Run interactive REPL (Read-Eval-Print Loop)
 pub fn run_repl() {
@@ -17,12 +17,11 @@ pub fn run_repl() {
     println!();
 
     let mut variables: HashMap<String, usize> = HashMap::new();
-    let mut env: Vec<StackValue> = Vec::new();
     let mut line_buffer = String::new();
     let mut statement_buffer = String::new();
+    let mut vm = VM::new(Vec::new());
     loop {
         // Show prompt
-        let mut vm = VM::new(Vec::new());
         if statement_buffer.is_empty() {
             print!(">> ");
         } else {
@@ -39,21 +38,25 @@ pub fn run_repl() {
             }
             Ok(_) => {
                 let input = line_buffer.trim();
-
+                dbg!(input);
                 // Handle special commands
                 match input {
                     "exit" | "quit" => {
-                        println!("Goodbye!");
                         break;
                     }
                     "clear" => {
                         variables.clear();
-                        env.clear();
-                        println!("Variables cleared.");
+                        vm.env.clear();
                         continue;
                     }
                     "vars" | "v" => {
                         print_variables(&variables, &vm);
+                        continue;
+                    }
+                    "heap" => {
+                        for (i, collection) in vm.heap.iter().enumerate() {
+                            println!("{i}: {:?}", collection)
+                        }
                         continue;
                     }
                     "" => continue,
@@ -62,12 +65,13 @@ pub fn run_repl() {
 
                 // Accumulate input until we have a complete statement
                 statement_buffer.push_str(input);
-                statement_buffer.push(' ');
+                statement_buffer.push('\n');
 
                 // Check if statement is complete (ends with semicolon)
                 if statement_buffer.trim().ends_with(';') {
                     // Execute the statement
-                    match crate::execute_statement(&mut vm, &mut variables, &statement_buffer) {
+                    match crate::execute_statement(&mut vm, true, &mut variables, &statement_buffer)
+                    {
                         Ok(_) => {}
                         Err(err) => {
                             eprintln!("Error: {:?}", err);
@@ -88,10 +92,9 @@ fn print_variables(variables: &HashMap<String, usize>, vm: &VM) {
         println!("No variables defined.");
     } else {
         println!("Defined variables:");
-        let mut vars: Vec<_> = variables.iter().collect();
-        vars.sort_by_key(|&(_, &idx)| idx);
-        for (name, idx) in vars {
-            println!("{}: {})", name, print_value(&vm.env[*idx], vm));
+        for (name, idx) in variables.iter() {
+            eprintln!("{:?}", vm.env);
+            println!("{}: {}", name, print_value(&vm.env[*idx], vm));
         }
     }
     println!();

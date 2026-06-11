@@ -39,6 +39,7 @@ fn main() -> Result<(), InterpretationError> {
 /// Execute a single statement
 fn execute_statement(
     vm: &mut vm::VM,
+    debug: bool,
     variables: &mut HashMap<String, usize>,
     stmt: &String,
 ) -> Result<(), InterpretationError> {
@@ -55,7 +56,9 @@ fn execute_statement(
     let ir: Vec<ir::Command> = ir::ir(ast, variables, variables.len());
     // Execute
     vm.code = ir;
-    vm.execute()?;
+    eprintln!("{:?}", vm.code.clone());
+    vm.ip = 0;
+    vm.execute_program(debug)?;
 
     Ok(())
 }
@@ -79,7 +82,7 @@ fn run_files(args: &[String]) -> Result<(), TypeError> {
                                 .join('\n'.to_string().as_str())
                         );
                         let mut vm = VM::new(ir);
-                        vm.execute()?;
+                        vm.execute_program(true)?;
                     }
                     Err(e) => {
                         eprintln!("Parse error in {}: {}", file, e);

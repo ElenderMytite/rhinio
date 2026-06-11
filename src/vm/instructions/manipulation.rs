@@ -26,7 +26,7 @@ impl VM {
             return;
         }
         let value = value.unwrap();
-        print!("{}", print_value(&value, &self));
+        println!("{}", print_value(&value, &self));
         self.flush = true;
     }
     pub fn put(&mut self, value: StackValue) {
@@ -38,12 +38,12 @@ impl VM {
     }
     pub fn store(&mut self, addr: usize) {
         let value = self.stack.pop().unwrap();
-        if addr >= self.stack.len() {
+        if addr >= self.env.len() {
             self.env.resize(addr + 1, StackValue::Nil);
         }
         self.env[addr] = value;
     }
-    pub fn jmp(&mut self, addr: usize) {
+    pub fn jump(&mut self, addr: usize) {
         let condition = self.stack.pop().unwrap();
         if !condition.bool().unwrap() {
             eprintln!("breaking out of block at {}", self.ip);
@@ -54,6 +54,5 @@ impl VM {
         }
         eprintln!("jump to {addr}");
         self.ip = addr;
-        self.ip -= 1; // revert ip increase in main
     }
 }
