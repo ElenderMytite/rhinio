@@ -40,10 +40,14 @@ pub enum Command {
     // vector operations,
     Len,
     VNew,
-    // HNew,
     VPush,
     VPop,
     Get,
+    // hashmap operations,
+    HNew,
+    HInsert,
+    HContains,
+    HRemove,
     // type conversions
     Byte, // convert ascii character to int
     Char, // convert int to ascii character
@@ -116,6 +120,11 @@ fn operation_to_command(op: Operation) -> Result<Command, String> {
             "get" => Ok(Command::Get),
             "len" => Ok(Command::Len),
             "print" => Ok(Command::Print),
+            "in" => Ok(Command::HContains),
+            "add" => Ok(Command::HInsert),
+            "remove" => Ok(Command::HRemove),
+            "hmap" => Ok(Command::HNew),
+            "vec" => Ok(Command::VNew),
             _ => Err(format!("unknown function: {}", func)),
         },
         _ => Err("Unsupported operation in ir generation!".to_string()),

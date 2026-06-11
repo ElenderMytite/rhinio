@@ -36,7 +36,7 @@ pub(super) fn ir_call(
             }
             return;
         }
-        "push" | "get" => {
+        "push" | "get" | "add" | "remove" | "in" => {
             assert_eq!(expression.left.len(), 1);
             commands.push(Command::Load(register_variable(
                 variables,
@@ -82,7 +82,7 @@ pub(super) fn ir_call(
             None,
         ));
         match command {
-            Ok(Command::VPush | Command::VPop | Command::Get | Command::Len | Command::Print) => {
+            Ok(_) => {
                 commands.push(command.clone().unwrap());
             }
             _ => panic!(

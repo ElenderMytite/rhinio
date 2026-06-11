@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::ir::Command;
 mod instructions;
 pub(crate) struct VM {
@@ -140,14 +142,18 @@ impl VM {
                     self.jmp(addr);
                     Ok(())
                 }
-                Command::Get => self.vec_get().map(|_| ()),
-                Command::Len => self.len().map(|_| ()),
+                Command::Get => self.get(),
+                Command::HContains => self.hmap_contains(),
+                Command::Len => self.len(),
                 Command::VNew => {
                     self.new_vec();
                     Ok(())
                 }
-                Command::VPop => self.vec_pop().map(|_| ()),
-                Command::VPush => self.vec_push().map(|_| ()),
+                Command::HNew => self.new_hmap(),
+                Command::VPop => self.vec_pop(),
+                Command::HRemove => self.hmap_remove(),
+                Command::VPush => self.vec_push(),
+                Command::HInsert => self.hmap_insert(),
             };
             result?;
             self.ip += 1;
@@ -167,15 +173,15 @@ impl std::fmt::Debug for TypeError {
 #[derive(Debug, Clone)]
 pub enum HeapValue {
     Vector(Vec<StackValue>),
-    // HMap(HashMap<StackValue, StackValue>),
-    // Str(String),
+    HMap(HashMap<StackValue, StackValue>),
+    _Str(String),
 }
 impl HeapValue {
     pub fn len(&self) -> usize {
         match self {
             HeapValue::Vector(vec) => vec.len(),
-            // HeapValue::HMap(map) => map.len(),
-            // HeapValue::Str(s) => s.len(),
+            HeapValue::HMap(map) => map.len(),
+            HeapValue::_Str(s) => s.len(),
         }
     }
 }
@@ -225,14 +231,15 @@ pub(super) fn print_value(value: &StackValue, vm: &VM) -> String {
                 HeapValue::Vector(vec) => {
                     let elements: Vec<String> = vec.iter().map(|v| print_value(v, vm)).collect();
                     format!("[{}]", elements.join(", "))
-                } // HeapValue::HMap(map) => {
-                  //     let elements: Vec<String> = map
-                  //         .iter()
-                  //         .map(|(k, v)| format!("{}: {}", print_value(k, vm), print_value(v, vm)))
-                  //         .collect();
-                  //     format!("{{{}}}", elements.join(", "))
-                  // }
-                  // HeapValue::Str(s) => s.clone(),
+                }
+                HeapValue::HMap(map) => {
+                    let elements: Vec<String> = map
+                        .iter()
+                        .map(|(k, v)| format!("{}: {}", print_value(k, vm), print_value(v, vm)))
+                        .collect();
+                    format!("{{{}}}", elements.join(", "))
+                }
+                HeapValue::_Str(s) => s.clone(),
             }
         }
     }
