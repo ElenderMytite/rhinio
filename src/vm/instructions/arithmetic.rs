@@ -1,29 +1,33 @@
-use super::super::StackValue;
-use super::super::VM;
+use super::super::{ExecutionError, StackValue, VM};
 impl VM {
-    pub fn add(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn add(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Int(a + b));
+        Ok(())
     }
-    pub fn sub(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn sub(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Int(a - b));
+        Ok(())
     }
-    pub fn mul(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn mul(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Int(a * b));
+        Ok(())
     }
-    pub fn div(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn div(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Int(a / b));
+        Ok(())
     }
-    pub fn modd(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn modd(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Int(a % b));
+        Ok(())
     }
 }

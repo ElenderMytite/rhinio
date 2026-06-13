@@ -7,7 +7,7 @@ pub mod vm;
 use std::collections::HashMap;
 
 pub use parser::ParseError;
-pub use vm::TypeError;
+pub use vm::ExecutionError;
 
 impl From<ParseError> for InterpretationError {
     fn from(value: ParseError) -> Self {
@@ -15,8 +15,8 @@ impl From<ParseError> for InterpretationError {
     }
 }
 
-impl From<TypeError> for InterpretationError {
-    fn from(value: TypeError) -> Self {
+impl From<ExecutionError> for InterpretationError {
+    fn from(value: ExecutionError) -> Self {
         Self::Execution(value)
     }
 }
@@ -24,7 +24,7 @@ impl From<TypeError> for InterpretationError {
 #[derive(Debug)]
 pub enum InterpretationError {
     Parsing(ParseError),
-    Execution(TypeError),
+    Execution(ExecutionError),
 }
 /// Execute a single statement (used by REPL and main)
 pub fn execute_statement(
@@ -48,8 +48,7 @@ pub fn execute_statement(
     // Execute
     vm.code = ir;
     vm.ip = 0;
-    vm.execute_program(debug)
-        .map_err(InterpretationError::Execution)?;
+    vm.execute_program(debug)?;
 
     Ok(())
 }

@@ -4,6 +4,16 @@ use std::{
     hash::Hash,
 };
 mod instructions;
+impl From<TypeError> for ExecutionError {
+    fn from(value: TypeError) -> Self {
+        Self::TypeMismatch(value)
+    }
+}
+#[derive(Debug, Clone, Copy)]
+pub enum ExecutionError {
+    TypeMismatch(TypeError),
+    StackUnderflow,
+}
 pub struct VM {
     pub ip: usize,
     flush: bool,
@@ -16,6 +26,13 @@ pub struct VM {
     pub env: Vec<StackValue>,
 }
 impl VM {
+    pub fn stack_pop(&mut self) -> Result<StackValue, ExecutionError> {
+        let value = self.stack.pop();
+        match value {
+            Some(x) => Ok(x),
+            None => Err(ExecutionError::StackUnderflow),
+        }
+    }
     pub fn new(code: Vec<Command>) -> Self {
         Self {
             ip: 0,
@@ -27,7 +44,7 @@ impl VM {
         }
     }
     /// prints debugging information before executing each command
-    pub fn execute_program(&mut self, debug: bool) -> Result<(), TypeError> {
+    pub fn execute_program(&mut self, debug: bool) -> Result<(), ExecutionError> {
         while self.ip < self.code.len() {
             if debug {
                 eprintln!(
@@ -57,40 +74,40 @@ impl VM {
         });
     }
     /// reads command at instruction pointer ip, and calls corresponding function, then increases instruction pointer by one
-    fn execute_command(&mut self) -> Result<(), TypeError> {
+    fn execute_command(&mut self) -> Result<(), ExecutionError> {
         let command = self.code[self.ip];
         self.ip += 1;
         match command {
-            Command::Add => self.add(),
-            Command::Sub => self.sub(),
-            Command::Mul => self.mul(),
-            Command::Div => self.div(),
-            Command::Mod => self.modd(),
-            Command::Byte => self.byte(),
-            Command::Char => self.char(),
             Command::Cls => self.cls(),
-            Command::Dup => self.dup(),
-            Command::Swap => self.swap(),
-            Command::Del => self.drop(),
-            Command::Put(value) => self.put(value),
-            Command::Print => self.print(),
-            Command::Eq => self.eq(),
-            Command::Neq => self.neq(),
-            Command::Geq => self.geq(),
-            Command::Leq => self.leq(),
-            Command::Gt => self.gt(),
-            Command::Ls => self.ls(),
-            Command::Not => self.not(),
-            Command::And => self.and(),
-            Command::Or => self.or(),
-            Command::Xor => self.xor(),
-            Command::Nor => self.nor(),
-            Command::Nand => self.nand(),
-            Command::Load(addr) => self.load(addr),
-            Command::Store(addr) => self.store(addr),
-            Command::Jmp(addr) => self.jump(addr),
             Command::VNew => self.new_vec(),
             Command::HNew => self.new_hmap(),
+            Command::Add => return self.add(),
+            Command::Sub => return self.sub(),
+            Command::Mul => return self.mul(),
+            Command::Div => return self.div(),
+            Command::Mod => return self.modd(),
+            Command::Byte => return self.byte(),
+            Command::Char => return self.char(),
+            Command::Dup => return self.dup(),
+            Command::Swap => return self.swap(),
+            Command::Del => return self.drop(),
+            Command::Put(value) => self.put(value),
+            Command::Print => return self.print(),
+            Command::Eq => return self.eq(),
+            Command::Neq => return self.neq(),
+            Command::Geq => return self.geq(),
+            Command::Leq => return self.leq(),
+            Command::Gt => return self.gt(),
+            Command::Ls => return self.ls(),
+            Command::Not => return self.not(),
+            Command::And => return self.and(),
+            Command::Or => return self.or(),
+            Command::Xor => return self.xor(),
+            Command::Nor => return self.nor(),
+            Command::Nand => return self.nand(),
+            Command::Load(addr) => self.load(addr),
+            Command::Store(addr) => return self.store(addr),
+            Command::Jmp(addr) => return self.jump(addr),
             Command::Get => return self.get(1),
             Command::HContains => return self.hmap_contains(),
             Command::Len => return self.len(),
@@ -102,8 +119,9 @@ impl VM {
         Ok(())
     }
 }
+#[derive(Debug, Clone, Copy)]
 pub struct TypeError;
-impl std::fmt::Debug for TypeError {
+impl std::fmt::Display for TypeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

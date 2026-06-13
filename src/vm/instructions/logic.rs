@@ -1,32 +1,38 @@
-use crate::vm::{StackValue, VM};
+use crate::vm::{ExecutionError, StackValue, VM};
 impl VM {
-    pub fn and(&mut self) {
+    pub fn and(&mut self) -> Result<(), ExecutionError> {
         let b = self.stack.pop().unwrap().bool().unwrap();
         let a = self.stack.pop().unwrap().bool().unwrap();
         self.stack.push(StackValue::Bool(a && b));
+        Ok(())
     }
-    pub fn or(&mut self) {
+    pub fn or(&mut self) -> Result<(), ExecutionError> {
         let b = self.stack.pop().unwrap().bool().unwrap();
         let a = self.stack.pop().unwrap().bool().unwrap();
         self.stack.push(StackValue::Bool(a || b));
+        Ok(())
     }
-    pub fn not(&mut self) {
+    pub fn not(&mut self) -> Result<(), ExecutionError> {
         let a = self.stack.pop().unwrap().bool().unwrap();
         self.stack.push(StackValue::Bool(!a));
+        Ok(())
     }
-    pub fn xor(&mut self) {
+    pub fn xor(&mut self) -> Result<(), ExecutionError> {
         let b = self.stack.pop().unwrap().bool().unwrap();
         let a = self.stack.pop().unwrap().bool().unwrap();
         self.stack.push(StackValue::Bool(a ^ b));
+        Ok(())
     }
-    pub fn nor(&mut self) {
+    pub fn nor(&mut self) -> Result<(), ExecutionError> {
         let b = self.stack.pop().unwrap().bool().unwrap();
         let a = self.stack.pop().unwrap().bool().unwrap();
         self.stack.push(StackValue::Bool(!(a || b)));
+        Ok(())
     }
-    pub fn nand(&mut self) {
+    pub fn nand(&mut self) -> Result<(), ExecutionError> {
         let b = self.stack.pop().unwrap().bool().unwrap();
         let a = self.stack.pop().unwrap().bool().unwrap();
         self.stack.push(StackValue::Bool(!(a && b)));
+        Ok(())
     }
 }

@@ -1,33 +1,39 @@
-use crate::vm::{StackValue, VM};
+use crate::vm::{ExecutionError, StackValue, VM};
 impl VM {
-    pub fn eq(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn eq(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Bool(a == b));
+        Ok(())
     }
-    pub fn neq(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn neq(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Bool(a != b));
+        Ok(())
     }
-    pub fn geq(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn geq(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Bool(a >= b));
+        Ok(())
     }
-    pub fn leq(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn leq(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Bool(a <= b));
+        Ok(())
     }
-    pub fn ls(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn ls(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Bool(a < b));
+        Ok(())
     }
-    pub fn gt(&mut self) {
-        let b = self.stack.pop().unwrap().int().unwrap();
-        let a = self.stack.pop().unwrap().int().unwrap();
+    pub fn gt(&mut self) -> Result<(), ExecutionError> {
+        let b = self.stack.pop().unwrap().int()?;
+        let a = self.stack.pop().unwrap().int()?;
         self.stack.push(StackValue::Bool(a > b));
+        Ok(())
     }
 }

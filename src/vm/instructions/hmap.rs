@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::vm::{HeapValue, StackValue, TypeError, VM};
+use crate::vm::{ExecutionError, HeapValue, StackValue, TypeError, VM};
 impl VM {
     fn extract_hmap_from_heap_mut(
         &mut self,
@@ -18,9 +18,9 @@ impl VM {
         self.heap.push(HeapValue::HMap(hmap));
         self.stack.push(StackValue::Ptr(ptr));
     }
-    pub fn hmap_insert(&mut self) -> Result<(), TypeError> {
-        let value = self.stack.pop().unwrap();
-        let key = self.stack.pop().unwrap();
+    pub fn hmap_insert(&mut self) -> Result<(), ExecutionError> {
+        let value = self.stack_pop()?;
+        let key = self.stack_pop()?;
         let ptr = self.stack.pop().unwrap().ptr()?;
         let hmap = self.extract_hmap_from_heap_mut(ptr)?;
         eprintln!("Successfully extracted hmap: {:?}", hmap.clone());
@@ -28,8 +28,8 @@ impl VM {
         hmap.insert(key, value);
         Ok(())
     }
-    pub fn hmap_get(&mut self) -> Result<(), TypeError> {
-        let key = self.stack.pop().unwrap();
+    pub fn hmap_get(&mut self) -> Result<(), ExecutionError> {
+        let key = self.stack_pop()?;
         eprintln!("Successfully got key from the stack: {:?}", key);
         let ptr = self.stack.pop().unwrap().ptr()?;
         eprintln!("Successfully got pointer from the stack: {:?}", ptr);
@@ -40,8 +40,8 @@ impl VM {
         self.stack.push(value);
         Ok(())
     }
-    pub fn hmap_contains(&mut self) -> Result<(), TypeError> {
-        let key = self.stack.pop().unwrap();
+    pub fn hmap_contains(&mut self) -> Result<(), ExecutionError> {
+        let key = self.stack_pop()?;
         let ptr = self.stack.pop().unwrap().ptr()?;
         let value = {
             let hmap = self.extract_hmap_from_heap_mut(ptr)?;
@@ -50,8 +50,8 @@ impl VM {
         self.stack.push(StackValue::Bool(value));
         Ok(())
     }
-    pub fn hmap_remove(&mut self) -> Result<(), TypeError> {
-        let key = self.stack.pop().unwrap();
+    pub fn hmap_remove(&mut self) -> Result<(), ExecutionError> {
+        let key = self.stack_pop()?;
         let ptr = self.stack.pop().unwrap().ptr()?;
         let value = {
             let hmap = self.extract_hmap_from_heap_mut(ptr)?;

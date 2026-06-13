@@ -1,8 +1,5 @@
 use std::{collections::HashMap, env::args, fs::read_to_string};
-use tinywrite::{
-    InterpretationError, ir, lexer, parser, repl,
-    vm::{TypeError, VM},
-};
+use tinywrite::{ExecutionError, InterpretationError, ir, lexer, parser, repl, vm::VM};
 fn main() -> Result<(), InterpretationError> {
     let args: Vec<String> = args().skip(1).collect();
 
@@ -29,7 +26,7 @@ fn main() -> Result<(), InterpretationError> {
 }
 
 /// Run files from command line arguments
-fn run_files(args: &[String], debug: bool) -> Result<(), TypeError> {
+fn run_files(args: &[String], debug: bool) -> Result<(), ExecutionError> {
     for file in args {
         match read_to_string(format!("examples/{}", file.trim())) {
             Ok(text) => {

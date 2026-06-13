@@ -1,4 +1,4 @@
-use crate::vm::{HeapValue, StackValue, TypeError, VM};
+use crate::vm::{ExecutionError, HeapValue, StackValue, TypeError, VM};
 impl VM {
     pub fn new_vec(&mut self) {
         let vec = Vec::new();
@@ -16,21 +16,21 @@ impl VM {
             _ => Err(TypeError),
         }
     }
-    pub fn vec_pop(&mut self) -> Result<(), TypeError> {
+    pub fn vec_pop(&mut self) -> Result<(), ExecutionError> {
         let ptr = self.stack.pop().unwrap().ptr()?;
         let vec = self.extract_vec_from_heap_mut(ptr);
         let value = vec?.pop().unwrap();
         self.stack.push(value);
         Ok(())
     }
-    pub fn vec_push(&mut self) -> Result<(), TypeError> {
-        let value = self.stack.pop().unwrap();
+    pub fn vec_push(&mut self) -> Result<(), ExecutionError> {
+        let value = self.stack_pop()?;
         let ptr = self.stack.last().unwrap().ptr()?;
         let vec = self.extract_vec_from_heap_mut(ptr);
         vec?.push(value);
         Ok(())
     }
-    pub fn vec_get(&mut self) -> Result<(), TypeError> {
+    pub fn vec_get(&mut self) -> Result<(), ExecutionError> {
         let index = self.stack.pop().unwrap().int()? as usize;
         let ptr = self.stack.pop().unwrap().ptr()?;
         let vec = self.extract_vec_from_heap_mut(ptr)?;
@@ -39,7 +39,7 @@ impl VM {
         self.stack.push(value);
         Ok(())
     }
-    pub fn len(&mut self) -> Result<(), TypeError> {
+    pub fn len(&mut self) -> Result<(), ExecutionError> {
         let ptr = self.stack.pop().unwrap().ptr()?;
         let structure = &self.heap[ptr];
         self.stack.push(StackValue::Int(structure.len() as isize));
