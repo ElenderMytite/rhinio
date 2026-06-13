@@ -1,1 +1,3 @@
-If you are vibecoding, ask agent to not create markdown files for documentation and not create any shell scripts.
+### NOTE: If you are vibecoding, ask agent to not create markdown files for documentation and not create any shell scripts. Write rusty doc comments and tests instead. 
+Tinywrite is a simple interpreted programming language that has a little bit of imperative programming capabilities, and will have functional programming capabilities. By design, all functions (operations) accept arguments both from left and right and may distinguish between sides, i.e. minus function first adds arguments on the left and right separately, and then takes the difference of the results. (or just subtracts the second argument from the first if ___exactly___ two arguments were provided)
+Although types can be checked at runtime, introducing a type system for checking in translate time is planned.
