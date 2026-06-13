@@ -16,7 +16,7 @@ impl VM {
         let hmap = HashMap::new();
         let ptr = self.heap.len();
         self.heap.push(HeapValue::HMap(hmap));
-        self.stack.push(StackValue::Ptr(ptr));
+        self.stack.push(StackValue::Pointer(ptr));
     }
     pub fn hmap_insert(&mut self) -> Result<(), ExecutionError> {
         let value = self.stack_pop()?;
@@ -35,7 +35,7 @@ impl VM {
         eprintln!("Successfully got pointer from the stack: {:?}", ptr);
         let value = {
             let hmap = self.extract_hmap_from_heap_mut(ptr)?;
-            *hmap.get(&key).unwrap_or(&StackValue::Nil)
+            *hmap.get(&key).unwrap_or(&StackValue::Bool(false)) // TODO: implement option type
         };
         self.stack.push(value);
         Ok(())
@@ -55,7 +55,7 @@ impl VM {
         let ptr = self.stack.pop().unwrap().ptr()?;
         let value = {
             let hmap = self.extract_hmap_from_heap_mut(ptr)?;
-            hmap.remove(&key).unwrap_or(StackValue::Nil)
+            hmap.remove(&key).unwrap_or(StackValue::Bool(false)) // TODO: implement option type
         };
         self.stack.push(value);
         Ok(())

@@ -4,7 +4,7 @@ impl VM {
         let vec = Vec::new();
         let ptr = self.heap.len();
         self.heap.push(HeapValue::Vector(vec));
-        self.stack.push(StackValue::Ptr(ptr));
+        self.stack.push(StackValue::Pointer(ptr));
     }
     fn extract_vec_from_heap_mut(
         &mut self,

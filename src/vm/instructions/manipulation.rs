@@ -33,13 +33,17 @@ impl VM {
         self.stack.push(value);
     }
     pub fn load(&mut self, addr: usize) {
-        let value = self.env.get(addr).unwrap_or(&StackValue::Nil).clone();
+        let value = self
+            .env
+            .get(addr)
+            .unwrap_or(&StackValue::Bool(false))
+            .clone();
         self.stack.push(value);
     }
     pub fn store(&mut self, addr: usize) -> Result<(), ExecutionError> {
         let value = self.stack_pop()?;
         if addr >= self.env.len() {
-            self.env.resize(addr + 1, StackValue::Nil);
+            self.env.resize(addr + 1, StackValue::Bool(false));
         }
         self.env[addr] = value;
         Ok(())

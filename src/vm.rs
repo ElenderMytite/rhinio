@@ -12,6 +12,7 @@ impl From<TypeError> for ExecutionError {
 #[derive(Debug, Clone, Copy)]
 pub enum ExecutionError {
     TypeMismatch(TypeError),
+    ConversionError { from: Type, to: Type },
     StackUnderflow,
 }
 pub struct VM {
@@ -63,7 +64,7 @@ impl VM {
     fn collect_garbage(&mut self) {
         let mut used = HashSet::new();
         for var in self.env.iter() {
-            if let StackValue::Ptr(idx) = var {
+            if let StackValue::Pointer(idx) = var {
                 used.insert(idx);
             }
         }
@@ -134,6 +135,7 @@ pub enum HeapValue {
     Vector(Vec<StackValue>),
     HMap(HashMap<StackValue, StackValue>),
     _Str(String),
+    _Pair(StackValue, StackValue),
 }
 impl HeapValue {
     pub fn len(&self) -> usize {
@@ -141,6 +143,7 @@ impl HeapValue {
             HeapValue::Vector(vec) => vec.len(),
             HeapValue::HMap(map) => map.len(),
             HeapValue::_Str(s) => s.len(),
+            HeapValue::_Pair(_, _) => 2,
         }
     }
 }
@@ -149,8 +152,18 @@ pub enum StackValue {
     Bool(bool),
     Int(isize),
     Char(char),
-    Ptr(usize), // index in the self.heap
-    Nil,
+    Pointer(usize), // index in the self.heap
+}
+#[derive(Debug, Clone, Copy)]
+pub enum Type {
+    Bool,
+    Int,
+    Char,
+    Pointer,
+    Vector,
+    HMap,
+    String,
+    Pair,
 }
 impl StackValue {
     pub fn int(&self) -> Result<isize, TypeError> {
@@ -173,18 +186,17 @@ impl StackValue {
     }
     pub fn ptr(&self) -> Result<usize, TypeError> {
         match &self {
-            Self::Ptr(p) => Ok(*p),
+            Self::Pointer(p) => Ok(*p),
             _ => Err(TypeError),
         }
     }
 }
 pub(super) fn print_value(value: &StackValue, vm: &VM) -> String {
     match value {
-        StackValue::Nil => "Nil".to_string(),
         StackValue::Int(x) => x.to_string(),
         StackValue::Bool(b) => b.to_string(),
         StackValue::Char(c) => c.to_string(),
-        StackValue::Ptr(p) => {
+        StackValue::Pointer(p) => {
             let heap_val = &vm.heap[*p];
             match heap_val {
                 HeapValue::Vector(vec) => {
@@ -199,6 +211,9 @@ pub(super) fn print_value(value: &StackValue, vm: &VM) -> String {
                     format!("{{{}}}", elements.join(", "))
                 }
                 HeapValue::_Str(s) => s.clone(),
+                HeapValue::_Pair(first, second) => {
+                    format!("({}, {})", print_value(first, vm), print_value(second, vm))
+                }
             }
         }
     }
