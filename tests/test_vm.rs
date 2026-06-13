@@ -380,9 +380,9 @@ fn test_vm_all_comparison_operators() {
 #[test]
 fn test_vm_all_logic_operators() {
     let test_cases = vec![
-        ("(& 1 1);", Some(StackValue::Bool(true))),
-        ("(| 1 $false);", Some(StackValue::Bool(true))),
-        ("(^ 1 $false);", Some(StackValue::Bool(true))),
+        ("(& $true $true);", Some(StackValue::Bool(true))),
+        ("(| $true $false);", Some(StackValue::Bool(true))),
+        ("(^ $true $false);", Some(StackValue::Bool(true))),
     ];
 
     for (code, expected) in test_cases {
