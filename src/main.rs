@@ -1,4 +1,4 @@
-use std::{collections::HashMap, env::args, fs::read_to_string};
+use std::{collections::HashMap, env::args, fs::read};
 use tinywrite::{InterpretationError, ir, lexer, parser, repl, vm::VM};
 fn main() -> Result<(), InterpretationError> {
     let args: Vec<String> = args().skip(1).collect();
@@ -30,23 +30,13 @@ fn run_files(args: &[String], debug: bool) -> Result<(), InterpretationError> {
     for file in args {
         println!("{}", std::iter::repeat('-').take(64).collect::<String>());
         println!("running {}", file);
-        match read_to_string(format!("{}", file.trim())) {
+        match read(format!("{}", file.trim())) {
             Ok(text) => {
-                let tokens = lexer::tokenize(text.as_str());
+                let tokens = lexer::tokenize(&text)?;
                 match parser::astify(&tokens, parser::types::ParsingMode::Code, &mut 0) {
                     Ok(ast) => {
                         let vars = &mut HashMap::new();
                         let ir: Vec<ir::Command> = ir::translate(ast, vars)?;
-                        // if debug {
-                        //     println!(
-                        //         "{}",
-                        //         ir.iter()
-                        //             .enumerate()
-                        //             .map(|(k, v)| format!("{k}: {v:?}"))
-                        //             .collect::<Vec<String>>()
-                        //             .join("\n")
-                        //     );
-                        // }
                         let mut vm = VM::new(ir);
                         vm.execute_program(debug, true)?;
                     }

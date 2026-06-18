@@ -90,7 +90,7 @@ pub(super) fn ir_vector_operation(
                         }
                         Some(Operation::Logic(logic_op)) => {
                             commands.push(Command::Get);
-                            commands.push(Result::from(Operation::Logic(logic_op))?);
+                            commands.push(Command::try_from(Operation::Logic(logic_op))?);
                         }
                         None => {
                             // just push the value at idx to the stack

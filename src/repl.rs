@@ -78,13 +78,18 @@ pub fn run_repl(debug: bool) {
                 // Check if statement is complete (ends with semicolon)
                 if statement_buffer.trim().ends_with(';') {
                     // Execute the statement
-                    match execute_statement(&mut vm, debug, &mut variables, &statement_buffer) {
+                    match execute_statement(
+                        &mut vm,
+                        debug,
+                        &mut variables,
+                        statement_buffer.into_bytes(),
+                    ) {
                         Ok(_) => {}
                         Err(err) => {
                             eprintln!("Error: {:?}", err);
                         }
                     }
-                    statement_buffer.clear();
+                    statement_buffer = String::new();
                 }
             }
             Err(err) => {

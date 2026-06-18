@@ -14,10 +14,12 @@ pub(super) fn ir_call(
     outer: Option<Operation>,
 ) -> Result<(), TranslationError> {
     let (func, command) = match &expression.operation {
-        Some(Operation::Call(func)) => (func.clone(), Result::from(Operation::Call(func.clone()))?),
+        Some(Operation::Call(func)) => (
+            func.clone(),
+            Command::try_from(Operation::Call(func.clone()))?,
+        ),
         _ => panic!("Non-call expression found in ir_call!"),
     };
-
     match func.as_str() {
         "byte" | "char" => {
             assert_eq!(expression.left.len() + expression.right.len(), 1);

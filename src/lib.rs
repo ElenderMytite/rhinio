@@ -7,8 +7,14 @@ pub mod vm;
 use std::collections::HashMap;
 
 pub use ir::TranslationError;
+pub use lexer::SyntaxError;
 pub use parser::ParseError;
 pub use vm::ExecutionError;
+impl From<SyntaxError> for InterpretationError {
+    fn from(value: SyntaxError) -> Self {
+        Self::Tokenizing(value)
+    }
+}
 impl From<TranslationError> for InterpretationError {
     fn from(value: TranslationError) -> Self {
         Self::Translating(value)
@@ -29,6 +35,7 @@ impl From<ExecutionError> for InterpretationError {
 
 #[derive(Debug)]
 pub enum InterpretationError {
+    Tokenizing(SyntaxError),
     Parsing(ParseError),
     Translating(TranslationError),
     Execution(ExecutionError),
@@ -38,20 +45,22 @@ pub fn execute_statement(
     vm: &mut vm::VM,
     debug: bool,
     variables: &mut HashMap<String, usize>,
-    stmt: &str,
+    stmt: Vec<u8>,
 ) -> Result<(), InterpretationError> {
-    // Remove trailing semicolon
-    let code = stmt.trim().trim_end_matches(';').to_string() + ";";
-
     // Tokenize
-    let tokens = lexer::tokenize(&code);
-
+    let tokens = lexer::tokenize(&stmt)?;
+    if debug {
+        eprintln!("tokens: {:?}", &tokens);
+    }
     // Parse
     let ast = parser::astify(&tokens, parser::types::ParsingMode::Code, &mut 0)
         .map_err(InterpretationError::Parsing)?;
 
     // Generate IR
     let ir: Vec<ir::Command> = ir::translate(ast, variables)?;
+    if debug {
+        dbg!(&ir);
+    }
     // Execute
     vm.code = ir;
     vm.ip = 0;

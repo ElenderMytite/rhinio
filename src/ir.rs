@@ -114,8 +114,10 @@ impl From<String> for TranslationError {
         UnknownIdentifier(value)
     }
 }
-impl From<Operation> for Result<Command, TranslationError> {
-    fn from(value: Operation) -> Self {
+impl TryFrom<Operation> for Command {
+    type Error = TranslationError;
+    fn try_from(value: Operation) -> Result<Self, TranslationError> {
+        dbg!(&value);
         match value {
             Operation::Comparison(comparison) => Ok(match comparison {
                 Comparison::Greater => Command::Gt,

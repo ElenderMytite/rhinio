@@ -5,11 +5,13 @@ use types::{
     AstNode, Comparison, Computation, Expression, Keyword, Logic, Operation, ParsingMode, Part,
     Value, VectorOp,
 };
+
+use crate::lexer::Token::{self};
 #[derive(Debug, Clone)]
 pub enum ParseError {
     UnexpectedConstant(String),
-    UnexpectedEOFAfter(String),
-    UnexpectedToken(String),
+    UnexpectedEOFAfter(Token),
+    UnexpectedToken(Token),
     UnexpectedEndOfExpression,
     UnexpectedBlock,
     NameError(Value),
@@ -22,10 +24,10 @@ impl Display for ParseError {
                 format!("Unexpected constant: {}", constant)
             }
             ParseError::UnexpectedEOFAfter(token) => {
-                format!("Unexpected end of file(EOF) after '{}' token", token)
+                format!("Unexpected end of file(EOF) after '{:?}' token", token)
             }
             ParseError::UnexpectedToken(token) => {
-                format!("Unexpected token: {}", token)
+                format!("Unexpected token: {:?}", token)
             }
             ParseError::UnexpectedEndOfExpression => {
                 format!("Unexpected end of expression")
@@ -39,15 +41,15 @@ impl Display for ParseError {
     }
 }
 pub fn astify(
-    tokens: &Vec<String>,
+    tokens: &Vec<Token>,
     block_type: ParsingMode,
     index: &mut usize,
 ) -> Result<AstNode, ParseError> {
     let mut buffer: Vec<Part> = Vec::new();
     let mut nodes: Vec<AstNode> = Vec::new();
     while *index < tokens.len() {
-        match tokens[*index].as_str() {
-            "(" => {
+        match &tokens[*index] {
+            Token::RoundOpen => {
                 *index += 1;
                 buffer.push(Part::Value(Value::Expression(
                     astify(tokens, ParsingMode::Expression, index)
@@ -55,73 +57,85 @@ pub fn astify(
                         .expr()?,
                 )));
             }
-            "{" => {
+            Token::CurlyOpen => {
                 *index += 1;
                 nodes.push(astify(tokens, ParsingMode::Code, index).unwrap())
             }
-            ")" => {
+            Token::RoundClose => {
                 if block_type == ParsingMode::Expression {
                     let node = parse_expression(&buffer);
                     buffer.clear();
                     return Ok(AstNode::Expression(Box::new(node)));
                 }
             }
-            "}" => {
+            Token::CurlyClosed => {
                 if block_type == ParsingMode::Code {
                     return Ok(AstNode::BlockCode(nodes));
                 }
             }
-            ";" => match block_type {
+            Token::EndOfStatement => match block_type {
                 ParsingMode::Expression => {
+                    println!("End of statment in block expression");
                     let expr = Part::Value(Value::Expression(parse_expression(&buffer)));
                     buffer.clear();
                     buffer.push(expr.clone());
                 }
                 ParsingMode::Code => {
+                    println!("End of statement in block code");
                     if !buffer.is_empty() {
                         let node = parse_expression(&buffer);
+                        //dbg!(&node);
                         buffer.clear();
                         nodes.push(AstNode::Expression(Box::new(node)));
                     }
                 }
             },
-            "=" => buffer.push(Part::Operation(Operation::Set)),
-            ":" => buffer.push(Part::Call),
-            "+" => buffer.push(Part::Operation(Operation::Computation(Computation::Add))),
-            "-" => buffer.push(Part::Operation(Operation::Computation(Computation::Sub))),
-            "*" => buffer.push(Part::Operation(Operation::Computation(Computation::Mul))),
-            "/" => buffer.push(Part::Operation(Operation::Computation(Computation::Div))),
-            "%" => buffer.push(Part::Operation(Operation::Computation(Computation::Mod))),
-            "|" => buffer.push(Part::Operation(Operation::Logic(Logic::Or))),
-            "&" => buffer.push(Part::Operation(Operation::Logic(Logic::And))),
-            "^" => buffer.push(Part::Operation(Operation::Logic(Logic::Xor))),
-            "!" => buffer.push(Part::Operation(Operation::Logic(Logic::Not))),
-            "==" | "!^" => buffer.push(Part::Operation(Operation::Comparison(Comparison::Equal))),
-            "!=" => buffer.push(Part::Operation(Operation::Comparison(Comparison::NotEqual))),
-            ">" => buffer.push(Part::Operation(Operation::Comparison(Comparison::Greater))),
-            "<" => buffer.push(Part::Operation(Operation::Comparison(Comparison::Less))),
-            ">=" | "=>" | "!<" | "<!" => buffer.push(Part::Operation(Operation::Comparison(
+            Token::Assign => buffer.push(Part::Operation(Operation::Set)),
+            Token::Call => buffer.push(Part::Call),
+            Token::Plus => buffer.push(Part::Operation(Operation::Computation(Computation::Add))),
+            Token::Minus => buffer.push(Part::Operation(Operation::Computation(Computation::Sub))),
+            Token::Asterisk => {
+                buffer.push(Part::Operation(Operation::Computation(Computation::Mul)))
+            }
+            Token::Slash => buffer.push(Part::Operation(Operation::Computation(Computation::Div))),
+            Token::Modulo => buffer.push(Part::Operation(Operation::Computation(Computation::Mod))),
+            Token::And => buffer.push(Part::Operation(Operation::Logic(Logic::Or))),
+            Token::Or => buffer.push(Part::Operation(Operation::Logic(Logic::And))),
+            Token::Xor => buffer.push(Part::Operation(Operation::Logic(Logic::Xor))),
+            Token::Nor => buffer.push(Part::Operation(Operation::Logic(Logic::Nor))),
+            Token::Nand => buffer.push(Part::Operation(Operation::Logic(Logic::Nand))),
+            Token::Negation => buffer.push(Part::Operation(Operation::Logic(Logic::Not))),
+            Token::Equality => {
+                buffer.push(Part::Operation(Operation::Comparison(Comparison::Equal)))
+            }
+            Token::Unequality => {
+                buffer.push(Part::Operation(Operation::Comparison(Comparison::NotEqual)))
+            }
+            Token::StrictMore => {
+                buffer.push(Part::Operation(Operation::Comparison(Comparison::Greater)))
+            }
+            Token::StrictLess => {
+                buffer.push(Part::Operation(Operation::Comparison(Comparison::Less)))
+            }
+            Token::LooseMore => buffer.push(Part::Operation(Operation::Comparison(
                 Comparison::GreaterOrEqual,
             ))),
-            "<=" | "=<" | "!>" | ">!" => buffer.push(Part::Operation(Operation::Comparison(
+            Token::LooseLess => buffer.push(Part::Operation(Operation::Comparison(
                 Comparison::LessOrEqual,
             ))),
-            "!&" => buffer.push(Part::Operation(Operation::Logic(Logic::Nand))),
-            "!|" => buffer.push(Part::Operation(Operation::Logic(Logic::Nor))),
-            ",," => buffer.push(Part::Operation(Operation::Vector(VectorOp::Pack))),
-            ".." => buffer.push(Part::Operation(Operation::Vector(VectorOp::Unpack))),
-            x if x.chars().all(|c| c.is_numeric())
-                | (x.starts_with("-") && x[1..].chars().all(|c| c.is_numeric())) =>
-            {
-                buffer.push(Part::Value(Value::Number(x.parse::<isize>().unwrap())));
+            Token::Glue => buffer.push(Part::Operation(Operation::Vector(VectorOp::Pack))),
+            Token::Slice => buffer.push(Part::Operation(Operation::Vector(VectorOp::Unpack))),
+
+            Token::Int(x) => {
+                buffer.push(Part::Value(Value::Number(*x)));
             }
-            x if x.chars().all(|c| c.is_alphanumeric() || c == '_') => {
-                buffer.push(Part::Value(Value::Name(x.to_string())));
+            Token::Name(name) => {
+                buffer.push(Part::Value(Value::Name(name.clone())));
             }
-            "$" => {
+            Token::Constant => {
                 *index += 1;
-                if let Some(keyword) = tokens.get(*index) {
-                    match keyword.to_lowercase().as_str() {
+                if let Some(Token::Name(keyword)) = tokens.get(*index) {
+                    match keyword.as_str() {
                         "true" => buffer.push(Part::Keyword(Keyword::True)),
                         "false" => buffer.push(Part::Keyword(Keyword::False)),
                         "tab" => buffer.push(Part::Keyword(Keyword::Tab)),
@@ -133,14 +147,15 @@ pub fn astify(
                         func => return Err(ParseError::UnexpectedConstant(func.to_string())),
                     }
                 } else {
-                    return Err(ParseError::UnexpectedEOFAfter("$".to_string()));
+                    return Err(ParseError::UnexpectedEOFAfter(Token::Constant));
                 }
             }
-            token => return Err(ParseError::UnexpectedToken(token.to_string())),
+            token => return Err(ParseError::UnexpectedToken(token.clone())),
         }
         *index += 1;
     }
     parse_expression(&buffer);
+    //dbg!(&nodes);
     match block_type {
         ParsingMode::Expression => return Err(ParseError::UnexpectedEndOfExpression),
         ParsingMode::Code => Ok(AstNode::BlockCode(nodes)),
@@ -148,7 +163,7 @@ pub fn astify(
 }
 fn parse_expression(buffer: &Vec<Part>) -> Expression {
     let mut idx = 0;
-    // println!("parsing expression from: {:?}", buffer);
+    println!("parsing expression from: {:?}", buffer);
     let mut left: Vec<Part> = Vec::new();
     let mut right: Vec<Part> = Vec::new();
     let mut operation: Option<Operation> = None;

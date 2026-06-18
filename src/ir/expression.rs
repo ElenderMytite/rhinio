@@ -11,7 +11,7 @@ pub(super) fn ir_expression(
 ) -> Result<(), TranslationError> {
     match expression.operation.clone() {
         Some(op) => {
-            let command = Result::from(op.clone())?;
+            let command = Command::try_from(op.clone());
             // println!(
             //     "right len: {}; left len: {}; command: {:?}",
             //     expression.left.len(),
@@ -25,7 +25,7 @@ pub(super) fn ir_expression(
                     for value in expression.left.iter().chain(expression.right.iter()) {
                         ir_value(value, variables, None, commands)?;
                     }
-                    commands.push(command.clone());
+                    commands.push(command.clone().unwrap());
                     return Ok(());
                 }
                 Operation::Vector(_) => {
@@ -50,7 +50,7 @@ pub(super) fn ir_expression(
                     for i in 0..expression.left.len() {
                         ir_value(&expression.left[i], variables, outer.clone(), commands)?;
                         ir_value(&expression.right[i], variables, outer.clone(), commands)?;
-                        commands.push(command);
+                        commands.push(command.clone().unwrap());
                     }
                 }
                 Operation::Computation(computation) => match computation {
@@ -110,7 +110,7 @@ pub(super) fn ir_expression(
                     {
                         ir_value(value, variables, Some(op.clone()), commands)?;
                         if idx != 0 || l == Logic::Not {
-                            commands.push(command);
+                            commands.push(command.clone().unwrap());
                         }
                     }
                 }
