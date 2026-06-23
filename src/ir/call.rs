@@ -81,7 +81,7 @@ pub(super) fn ir_call(
             Command::Get => commands.push(Command::Dup),
             _ => (),
         }
-        ir_value(value, variables, outer.clone(), commands, stringss)?;
+        ir_value(value, variables, outer.clone(), commands, strings)?;
         match command {
             Command::HInsert => (),
             _ => {
